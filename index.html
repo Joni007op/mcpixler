@@ -144,7 +144,7 @@
     <h1>Info</h1>
     <p>• Nur echte Skin‑Flächen bemalbar<br>
        • Hover zeigt Teil oben<br>
-       • Pfeile drehen den Skin<br>
+       • Pfeile drehen die sichtbare Seite<br>
        • Farbfeld wie vorher</p>
   </div>
 
@@ -176,6 +176,7 @@ let mirror = false;
 let overlayEnabled = false;
 let currentColor = "#ffcc00";
 let rotation = 0; // 0=Front,1=Right,2=Back,3=Left
+let hoverArea = null;
 
 const hoverInfo = document.getElementById("hoverInfo");
 
@@ -434,4 +435,36 @@ document.getElementById("downloadBtn").onclick=()=>{
   const out=document.createElement("canvas");
   out.width=SKIN_SIZE; out.height=SKIN_SIZE;
   const o=out.getContext("2d");
-  o.drawImage(skin,0
+  o.drawImage(skin,0,0);
+  o.drawImage(overlay,0,0);
+  const a=document.createElement("a");
+  a.href=out.toDataURL("image/png");
+  a.download="skin.png";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+document.getElementById("rotLeft").onclick=()=>{
+  rotation=(rotation+3)%4;
+  redraw();
+};
+
+document.getElementById("rotRight").onclick=()=>{
+  rotation=(rotation+1)%4;
+  redraw();
+};
+
+window.addEventListener("keydown",e=>{
+  if(e.key==="Shift") tool="eraser";
+});
+window.addEventListener("keyup",e=>{
+  if(e.key==="Shift") tool="brush";
+});
+
+/* INITIAL */
+colorPreview.style.background=currentColor;
+redraw();
+</script>
+</body>
+</html>
