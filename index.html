@@ -50,6 +50,14 @@
     background:rgba(0,0,0,0.8);color:#fff;font-size:11px;
     transform:translate(-50%,-120%);white-space:nowrap;display:none;z-index:10;
   }
+  #colorField{
+    width:140px;height:80px;border-radius:8px;
+    border:1px solid rgba(255,255,255,0.15);cursor:crosshair;display:block;
+  }
+  #colorPreview{
+    width:32px;height:32px;border-radius:6px;
+    border:1px solid rgba(255,255,255,0.3);background:#ffcc00;
+  }
   @media(max-width:1100px){.app{grid-template-columns:1fr}}
 </style>
 </head>
@@ -58,7 +66,7 @@
 <div class="app">
   <!-- LEFT -->
   <div class="card">
-    <h1>Werkzeuge & Export</h1>
+    <h1>Werkzeuge & Farben</h1>
     <div class="row">
       <button class="btn alt" id="brushBtn">Pinsel</button>
       <button class="btn alt" id="eraserBtn">Radierer (Shift)</button>
@@ -69,15 +77,19 @@
     </div>
     <div class="row">
       <input id="colorPicker" type="color" value="#ffcc00" />
-      <button class="btn" id="clearBtn">Leeren</button>
+      <div id="colorPreview"></div>
     </div>
     <div class="row">
+      <canvas id="colorField"></canvas>
+    </div>
+    <div class="row">
+      <button class="btn" id="clearBtn">Leeren</button>
       <button class="btn" id="downloadBtn">Skin herunterladen</button>
     </div>
     <div class="hint">
       • Strg + Mausrad: Zoom<br>
       • Shift halten: temporär Radierer<br>
-      • Alles ist bemalbar, Linien zeigen die Flächen.
+      • Alles innerhalb der markierten Flächen ist bemalbar.
     </div>
   </div>
 
@@ -133,7 +145,11 @@ let painting = false;
 const hoverLabel = document.getElementById('hoverLabel');
 let hoverArea = null;
 
-/* ===== Flächen-Definitionen (alle bemalbar, nur markiert) ===== */
+const colorPreview = document.getElementById('colorPreview');
+const colorField = document.getElementById('colorField');
+const cfCtx = colorField.getContext('2d');
+
+/* ===== Flächen-Definitionen ===== */
 const SKIN_AREAS = [
   // HEAD
   { part:"Head", face:"Front",  x:8,  y:8,  w:8, h:8 },
@@ -196,7 +212,10 @@ document.getElementById('overlayBtn').onclick = ()=>{
   document.getElementById('overlayBtn').textContent = 'Overlay: ' + (overlayEnabled?'An':'Aus');
   redraw(); updateGL();
 };
-document.getElementById('colorPicker').oninput = e=> currentColor = e.target.value;
+document.getElementById('colorPicker').oninput = e=>{
+  currentColor = e.target.value;
+  colorPreview.style.background = currentColor;
+};
 document.getElementById('clearBtn').onclick = ()=>{
   sctx.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
   octx.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
@@ -214,6 +233,58 @@ document.getElementById('downloadBtn').onclick = ()=>{
   a.download = 'skin.png';
   document.body.appendChild(a); a.click(); a.remove();
 };
+
+/* ===== Farb-Feld (Palette) ===== */
+function drawColorField(){
+  const w = colorField.width;
+  const h = colorField.height;
+  const gradH = cfCtx.createLinearGradient(0,0,w,0);
+  gradH.addColorStop(0,'red');
+  gradH.addColorStop(0.16,'yellow');
+  gradH.addColorStop(0.33,'lime');
+  gradH.addColorStop(0.5,'cyan');
+  gradH.addColorStop(0.66,'blue');
+  gradH.addColorStop(0.83,'magenta');
+  gradH.addColorStop(1,'red');
+  cfCtx.fillStyle = gradH;
+  cfCtx.fillRect(0,0,w,h);
+
+  const gradV = cfCtx.createLinearGradient(0,0,0,h);
+  gradV.addColorStop(0,'rgba(255,255,255,1)');
+  gradV.addColorStop(0.5,'rgba(255,255,255,0)');
+  gradV.addColorStop(1,'rgba(0,0,0,1)');
+  cfCtx.fillStyle = gradV;
+  cfCtx.fillRect(0,0,w,h);
+}
+drawColorField();
+
+function getColorFromField(x,y){
+  const data = cfCtx.getImageData(x,y,1,1).data;
+  return `rgb(${data[0]},${data[1]},${data[2]})`;
+}
+
+colorField.addEventListener('mousemove', e=>{
+  const rect = colorField.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) * (colorField.width / rect.width));
+  const y = Math.floor((e.clientY - rect.top) * (colorField.height / rect.height));
+  if(x<0||y<0||x>=colorField.width||y>=colorField.height) return;
+  const col = getColorFromField(x,y);
+  colorPreview.style.background = col;
+});
+
+colorField.addEventListener('mouseleave', ()=>{
+  colorPreview.style.background = currentColor;
+});
+
+colorField.addEventListener('click', e=>{
+  const rect = colorField.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) * (colorField.width / rect.width));
+  const y = Math.floor((e.clientY - rect.top) * (colorField.height / rect.height));
+  if(x<0||y<0||x>=colorField.width||y>=colorField.height) return;
+  const col = getColorFromField(x,y);
+  currentColor = col;
+  colorPreview.style.background = currentColor;
+});
 
 /* ===== Zeichnen im Editor ===== */
 function redraw(){
@@ -262,6 +333,13 @@ function getHoverArea(px, py, scale){
     return px >= a.x*scale && px <= (a.x+a.w)*scale &&
            py >= a.y*scale && py <= (a.y+a.h)*scale;
   }) || null;
+}
+
+function isInsideAnyArea(px,py){
+  return SKIN_AREAS.some(a=>{
+    return px >= a.x && px < a.x+a.w &&
+           py >= a.y && py < a.y+a.h;
+  });
 }
 
 function setPixel(px,py,color,useOverlay){
@@ -322,6 +400,9 @@ function paintAt(e){
   const y = (e.clientY - rect.top) * scaleY;
   const px = Math.floor(x / viewScale);
   const py = Math.floor(y / viewScale);
+
+  // Nur innerhalb der definierten Körperflächen malen
+  if(!isInsideAnyArea(px,py)) return;
 
   const useOverlay = overlayEnabled;
   if(tool === 'eraser' || e.shiftKey){
@@ -520,6 +601,7 @@ let updateGL = ()=>{};
 })();
 
 /* ===== Initial ===== */
+colorPreview.style.background = currentColor;
 redraw();
 updateGL();
 </script>
