@@ -1,578 +1,139 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <title>Skin Pixler</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --panel: #151a2b;
-      --accent: #4fc3f7;
-      --accent-soft: rgba(79,195,247,0.2);
-      --text: #f5f7ff;
-      --muted: #9aa4c6;
-      --border: #252b3f;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: radial-gradient(circle at top, #1b2340 0, #050814 55%, #02030a 100%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: 260px minmax(480px, 640px) 320px;
-      gap: 16px;
-      padding: 20px;
-      width: 100%;
-      max-width: 1280px;
-    }
-
-    .panel {
-      background: linear-gradient(145deg, #111729, #070b16);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.02),
-        0 18px 45px rgba(0,0,0,0.7);
-      padding: 16px 18px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .panel::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 0 0, rgba(79,195,247,0.12), transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(129,199,132,0.12), transparent 55%);
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    .panel-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    h1, h2, h3 {
-      margin: 0 0 10px;
-      letter-spacing: 0.03em;
-    }
-
-    h1 {
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    h1 span.logo-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: radial-gradient(circle, #4fc3f7 0, #0288d1 60%, #01579b 100%);
-      box-shadow: 0 0 12px rgba(79,195,247,0.9);
-    }
-
-    .subtitle {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 14px;
-    }
-
-    .section-title {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .controls-group {
-      margin-bottom: 16px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: radial-gradient(circle at top left, rgba(79,195,247,0.12), transparent 55%);
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-
-    .palette {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .color-swatch {
-      width: 26px;
-      height: 26px;
-      border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.4);
-      cursor: pointer;
-      position: relative;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
-    }
-
-    .color-swatch.active {
-      transform: translateY(-1px) scale(1.02);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.2),
-        0 0 12px rgba(79,195,247,0.7);
-      border-color: rgba(255,255,255,0.7);
-    }
-
-    .color-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: space-between;
-    }
-
-    .color-row label {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .color-row input[type="color"] {
-      width: 40px;
-      height: 24px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: transparent;
-      padding: 0;
-      cursor: pointer;
-    }
-
-    .btn {
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: radial-gradient(circle at top left, rgba(79,195,247,0.25), rgba(2,119,189,0.9));
-      color: #e3f2fd;
-      padding: 7px 14px;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      outline: none;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.06),
-        0 10px 25px rgba(2,119,189,0.7);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
-    }
-
-    .btn.secondary {
-      background: rgba(10,16,32,0.9);
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.04);
-      color: var(--muted);
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.12),
-        0 14px 30px rgba(2,119,189,0.9);
-    }
-
-    .btn.secondary:hover {
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.12),
-        0 10px 22px rgba(0,0,0,0.8);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.12),
-        0 6px 14px rgba(0,0,0,0.9);
-    }
-
-    .btn span.icon {
-      font-size: 14px;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .hint {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
-    .editor-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    #displayCanvas {
-      image-rendering: pixelated;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background:
-        linear-gradient(135deg, rgba(79,195,247,0.12), transparent 55%),
-        radial-gradient(circle at bottom, rgba(0,0,0,0.9), #02030a);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.04),
-        0 18px 40px rgba(0,0,0,0.9);
-      cursor: crosshair;
-    }
-
-    .editor-footer {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .badge {
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(79,195,247,0.4);
-      background: rgba(79,195,247,0.08);
-      color: #b3e5fc;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    /* 3D Preview */
-    .preview-container {
-      perspective: 900px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .preview-header {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      align-items: center;
-    }
-
-    .preview-header span {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .cube-scene {
-      width: 220px;
-      height: 220px;
-      position: relative;
-      transform-style: preserve-3d;
-      animation: spin 18s linear infinite;
-    }
-
-    .cube {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-    }
-
-    .cube-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      border-radius: 18px;
-      box-shadow:
-        0 0 0 1px rgba(0,0,0,0.6),
-        inset 0 0 18px rgba(0,0,0,0.9);
-      backface-visibility: hidden;
-    }
-
-    .cube-face.front  { transform: translateZ(110px); }
-    .cube-face.back   { transform: rotateY(180deg) translateZ(110px); }
-    .cube-face.right  { transform: rotateY(90deg) translateZ(110px); }
-    .cube-face.left   { transform: rotateY(-90deg) translateZ(110px); }
-    .cube-face.top    { transform: rotateX(90deg) translateZ(110px); }
-    .cube-face.bottom { transform: rotateX(-90deg) translateZ(110px); }
-
-    @keyframes spin {
-      0%   { transform: rotateX(-18deg) rotateY(0deg); }
-      50%  { transform: rotateX(-18deg) rotateY(180deg); }
-      100% { transform: rotateX(-18deg) rotateY(360deg); }
-    }
-
-    .preview-footer {
-      font-size: 11px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .preview-footer strong {
-      color: #e3f2fd;
-      font-weight: 500;
-    }
-
-    @media (max-width: 1024px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+<meta charset="utf-8" />
+<title>Minecraft Skin Pixler — 64×64</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{--bg:#071022;--panel:#0f1724;--muted:#9fb0d6;--accent:#4fc3f7;--card:#0b1220}
+  *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Arial}
+  body{margin:0;background:linear-gradient(180deg,#071022 0,#02030a 100%);color:#eaf2ff;display:flex;align-items:flex-start;justify-content:center;padding:20px}
+  .wrap{display:grid;grid-template-columns:320px 1fr 360px;gap:16px;width:100%;max-width:1300px}
+  .panel{background:linear-gradient(180deg,var(--panel),#07101a);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.03)}
+  h1{margin:0 0 8px;font-size:18px}
+  .palette{display:flex;flex-wrap:wrap;gap:6px}
+  .sw{width:28px;height:28px;border-radius:6px;cursor:pointer;border:1px solid rgba(0,0,0,0.4)}
+  #editorCanvas{width:512px;height:512px;image-rendering:pixelated;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:crosshair}
+  .controls{display:flex;gap:8px;margin-top:8px}
+  .btn{padding:8px 12px;border-radius:8px;background:linear-gradient(180deg,var(--accent),#0288d1);border:none;color:#042033;cursor:pointer}
+  .btn.secondary{background:#0b1220;color:var(--muted);border:1px solid rgba(255,255,255,0.03)}
+  /* 3D */
+  .scene{width:320px;height:320px;perspective:1000px;display:flex;align-items:center;justify-content:center}
+  .model{width:220px;height:220px;transform-style:preserve-3d;transition:transform 0.02s linear}
+  .face{position:absolute;width:220px;height:220px;background-size:cover;background-position:center;border-radius:6px;box-shadow:inset 0 0 30px rgba(0,0,0,0.6)}
+  .f-front{transform:translateZ(110px)}
+  .f-back{transform:rotateY(180deg) translateZ(110px)}
+  .f-right{transform:rotateY(90deg) translateZ(110px)}
+  .f-left{transform:rotateY(-90deg) translateZ(110px)}
+  .f-top{transform:rotateX(90deg) translateZ(110px)}
+  .f-bottom{transform:rotateX(-90deg) translateZ(110px)}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
+  @media(max-width:1000px){.wrap{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <div class="app">
-    <!-- LEFT: Controls -->
+  <div class="wrap">
+    <!-- LEFT: Palette & Actions -->
     <div class="panel">
-      <div class="panel-inner">
-        <h1><span class="logo-dot"></span> Skin Pixler</h1>
-        <div class="subtitle">64×64 Minecraft‑Skin mit Live‑3D‑Vorschau bearbeiten.</div>
-
-        <div class="controls-group">
-          <div class="section-title">Farbpalette</div>
-          <div class="palette" id="palette"></div>
-          <div class="color-row">
-            <label>Eigene Farbe</label>
-            <input type="color" id="colorPicker" value="#ffcc00" />
-          </div>
-          <div class="hint">Klicke auf eine Farbe und dann auf das Pixel‑Grid, um zu malen.</div>
-        </div>
-
-        <div class="controls-group">
-          <div class="section-title">Aktionen</div>
-          <div class="btn-row">
-            <button class="btn" id="downloadBtn">
-              <span class="icon">⬇️</span>
-              <span>Skin herunterladen</span>
-            </button>
-            <button class="btn secondary" id="clearBtn">
-              <span class="icon">🧹</span>
-              <span>Leeren</span>
-            </button>
-          </div>
-          <div class="hint">
-            Export: <strong>PNG</strong>, Größe <strong>64×64</strong>, direkt als Minecraft‑Skin verwendbar.
-          </div>
-        </div>
+      <h1>Farben & Aktionen</h1>
+      <div class="palette" id="palette"></div>
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+        <input id="colorPicker" type="color" value="#ffcc00" />
+        <button class="btn" id="mirrorBtn">Spiegeln aus</button>
+        <button class="btn secondary" id="clearBtn">Leeren</button>
       </div>
+      <div class="controls" style="margin-top:12px">
+        <button class="btn" id="downloadBtn">Skin herunterladen</button>
+      </div>
+      <div class="hint">Nutze Drag zum Malen. 64×64 Minecraft‑Skin‑Layout wird verwendet. </div>
     </div>
 
     <!-- CENTER: 2D Editor -->
-    <div class="panel">
-      <div class="panel-inner">
-        <div class="editor-wrapper">
-          <div class="section-title" style="align-self:flex-start;">2D‑Pixel‑Editor</div>
-          <canvas id="displayCanvas" width="512" height="512"></canvas>
-          <div class="editor-footer">
-            <span>Auflösung: <strong>64×64</strong> (Minecraft‑Skin‑Layout)</span>
-            <span class="badge">Pixel‑Modus</span>
-          </div>
-        </div>
-      </div>
+    <div class="panel" style="display:flex;flex-direction:column;align-items:center">
+      <h1>2D Pixel Editor (64×64)</h1>
+      <canvas id="editorCanvas" width="512" height="512"></canvas>
+      <div class="hint">Klicke oder ziehe, um Pixel zu setzen. Rechts: 3D Vorschau (drehen mit Maus).</div>
     </div>
 
     <!-- RIGHT: 3D Preview -->
-    <div class="panel">
-      <div class="panel-inner">
-        <div class="preview-container">
-          <div class="preview-header">
-            <div class="section-title">3D‑Vorschau</div>
-            <span>Live‑Sync mit deinem Pixel‑Skin</span>
-          </div>
-          <div class="cube-scene">
-            <div class="cube" id="cube">
-              <div class="cube-face front"></div>
-              <div class="cube-face back"></div>
-              <div class="cube-face right"></div>
-              <div class="cube-face left"></div>
-              <div class="cube-face top"></div>
-              <div class="cube-face bottom"></div>
-            </div>
-          </div>
-          <div class="preview-footer">
-            <strong>Hinweis:</strong> Dies ist eine stilisierte 3D‑Vorschau des gesamten Skins als Textur‑Cube.
-          </div>
+    <div class="panel" style="display:flex;flex-direction:column;align-items:center">
+      <h1>3D Vorschau</h1>
+      <div class="scene" id="scene">
+        <div class="model" id="model">
+          <div class="face f-front" id="f-front"></div>
+          <div class="face f-back" id="f-back"></div>
+          <div class="face f-right" id="f-right"></div>
+          <div class="face f-left" id="f-left"></div>
+          <div class="face f-top" id="f-top"></div>
+          <div class="face f-bottom" id="f-bottom"></div>
         </div>
       </div>
+      <div class="hint">Drag: drehen • Mausrad: zoomen</div>
     </div>
   </div>
 
-  <script>
-    // --- Grunddaten ---
-    const SKIN_SIZE = 64; // 64x64 Minecraft-Skin
+<script>
+/* Core: 64x64 skin canvas */
+const SKIN = 64;
+const skin = document.createElement('canvas'); skin.width=SKIN; skin.height=SKIN;
+const sctx = skin.getContext('2d');
+sctx.clearRect(0,0,SKIN,SKIN);
 
-    // Offscreen-Canvas für die echte Skin-Textur
-    const skinCanvas = document.createElement('canvas');
-    skinCanvas.width = SKIN_SIZE;
-    skinCanvas.height = SKIN_SIZE;
-    const skinCtx = skinCanvas.getContext('2d');
+/* visible editor scaled */
+const editor = document.getElementById('editorCanvas'), ectx = editor.getContext('2d');
+const scale = editor.width / SKIN;
+editor.style.imageRendering='pixelated';
 
-    // Sichtbares Canvas (vergrößert)
-    const displayCanvas = document.getElementById('displayCanvas');
-    const displayCtx = displayCanvas.getContext('2d');
+/* palette */
+const paletteColors = ['#000000','#ffffff','#7f7f7f','#c0392b','#e67e22','#f1c40f','#2ecc71','#3498db','#9b59b6','#d35400'];
+const palette = document.getElementById('palette');
+let currentColor = '#ffcc00';
+paletteColors.forEach(c=>{const d=document.createElement('div');d.className='sw';d.style.background=c;d.onclick=()=>{currentColor=c;document.getElementById('colorPicker').value=c};palette.appendChild(d)});
+document.getElementById('colorPicker').addEventListener('input',e=>currentColor=e.target.value);
 
-    // UI-Elemente
-    const paletteEl = document.getElementById('palette');
-    const colorPicker = document.getElementById('colorPicker');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const cubeEl = document.getElementById('cube');
+/* draw grid from skin */
+function redraw(){ ectx.clearRect(0,0,editor.width,editor.height); ectx.drawImage(skin,0,0,SKIN,SKIN,0,0,editor.width,editor.height);
+ ectx.strokeStyle='rgba(255,255,255,0.06)'; ectx.lineWidth=1;
+ for(let i=0;i<=SKIN;i++){ const p=i*scale+0.5; ectx.beginPath(); ectx.moveTo(p,0); ectx.lineTo(p,editor.height); ectx.stroke(); ectx.beginPath(); ectx.moveTo(0,p); ectx.lineTo(editor.width,p); ectx.stroke(); } updateModelFaces(); }
 
-    // Aktuelle Farbe
-    let currentColor = '#ffcc00';
+/* set pixel */
+function setPixel(px,py,color){ sctx.fillStyle=color; sctx.fillRect(px,py,1,1); redraw(); }
 
-    // Beispiel-Palette (kannst du beliebig erweitern)
-    const paletteColors = [
-      '#ffffff', '#c0c0c0', '#808080', '#404040', '#000000', '#ff0000',
-      '#ff7f00', '#ffff00', '#bfff00', '#00ff00', '#00ffbf', '#00ffff',
-      '#007fff', '#0000ff', '#7f00ff', '#bf00ff', '#ff00ff', '#ff007f',
-      '#8b4513', '#d2691e', '#f4a460', '#ffd39b', '#ffcc80', '#ffe0b2'
-    ];
+/* mouse painting */
+let painting=false;
+editor.addEventListener('mousedown',e=>{painting=true;paintAt(e)});
+window.addEventListener('mouseup',()=>painting=false);
+editor.addEventListener('mousemove',e=>{ if(painting) paintAt(e) });
+function paintAt(e){ const r=editor.getBoundingClientRect(); const x=(e.clientX-r.left)*(editor.width/r.width); const y=(e.clientY-r.top)*(editor.height/r.height);
+ const px=Math.floor(x/scale), py=Math.floor(y/scale); setPixel(px,py,currentColor); }
 
-    // Palette aufbauen
-    function buildPalette() {
-      paletteColors.forEach((color, index) => {
-        const swatch = document.createElement('div');
-        swatch.className = 'color-swatch' + (index === 0 ? ' active' : '');
-        swatch.style.background = color;
-        swatch.dataset.color = color;
-        swatch.addEventListener('click', () => {
-          currentColor = color;
-          colorPicker.value = color;
-          document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-          swatch.classList.add('active');
-        });
-        paletteEl.appendChild(swatch);
-      });
-    }
+/* clear & download */
+document.getElementById('clearBtn').onclick=()=>{ sctx.clearRect(0,0,SKIN,SKIN); redraw(); }
+document.getElementById('downloadBtn').onclick=()=>{
+  const a=document.createElement('a'); a.href=skin.toDataURL('image/png'); a.download='skin.png'; document.body.appendChild(a); a.click(); a.remove();
+}
 
-    // Skin-Canvas initialisieren (transparent)
-    function clearSkin() {
-      skinCtx.clearRect(0, 0, SKIN_SIZE, SKIN_SIZE);
-      redrawDisplay();
-      updateCubeTexture();
-    }
+/* 3D model mapping: crop regions for cube faces from skin canvas.
+   For simplicity map the full skin as texture on each face but crop can be refined to exact head/body/arm/leg regions per template. */
+function updateModelFaces(){
+  const dataURL = skin.toDataURL();
+  ['f-front','f-back','f-right','f-left','f-top','f-bottom'].forEach(id=>{
+    document.getElementById(id).style.backgroundImage = `url(${dataURL})`;
+  });
+}
 
-    // Display neu zeichnen (vergrößert + Grid)
-    function redrawDisplay() {
-      const scale = displayCanvas.width / SKIN_SIZE;
-      displayCtx.imageSmoothingEnabled = false;
-      displayCtx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
+/* interactive rotation & zoom */
+const model = document.getElementById('model'), scene=document.getElementById('scene');
+let rotX=-18, rotY=0, zoom=1;
+let dragging=false, lastX=0,lastY=0;
+scene.addEventListener('mousedown',e=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; });
+window.addEventListener('mouseup',()=>dragging=false);
+window.addEventListener('mousemove',e=>{ if(!dragging) return; const dx=e.clientX-lastX, dy=e.clientY-lastY; rotY += dx*0.3; rotX += dy*0.3; lastX=e.clientX; lastY=e.clientY; applyTransform(); });
+scene.addEventListener('wheel',e=>{ e.preventDefault(); zoom = Math.min(2.2, Math.max(0.6, zoom - e.deltaY*0.0015)); applyTransform(); },{passive:false});
+function applyTransform(){ model.style.transform = `scale(${zoom}) rotateX(${rotX}deg) rotateY(${rotY}deg)`; }
 
-      // Hintergrund
-      displayCtx.fillStyle = '#050814';
-      displayCtx.fillRect(0, 0, displayCanvas.width, displayCanvas.height);
-
-      // Skin-Textur skaliert zeichnen
-      displayCtx.drawImage(
-        skinCanvas,
-        0, 0, SKIN_SIZE, SKIN_SIZE,
-        0, 0, displayCanvas.width, displayCanvas.height
-      );
-
-      // Grid
-      displayCtx.strokeStyle = 'rgba(255,255,255,0.08)';
-      displayCtx.lineWidth = 1;
-      for (let i = 0; i <= SKIN_SIZE; i++) {
-        const pos = i * scale + 0.5;
-        // vertikal
-        displayCtx.beginPath();
-        displayCtx.moveTo(pos, 0);
-        displayCtx.lineTo(pos, displayCanvas.height);
-        displayCtx.stroke();
-        // horizontal
-        displayCtx.beginPath();
-        displayCtx.moveTo(0, pos);
-        displayCtx.lineTo(displayCanvas.width, pos);
-        displayCtx.stroke();
-      }
-    }
-
-    // Pixel setzen
-    function setPixel(x, y, color) {
-      if (x < 0 || x >= SKIN_SIZE || y < 0 || y >= SKIN_SIZE) return;
-      skinCtx.fillStyle = color;
-      skinCtx.fillRect(x, y, 1, 1);
-      redrawDisplay();
-      updateCubeTexture();
-    }
-
-    // Maus-Position -> Pixel
-    function handleCanvasClick(evt) {
-      const rect = displayCanvas.getBoundingClientRect();
-      const scaleX = displayCanvas.width / rect.width;
-      const scaleY = displayCanvas.height / rect.height;
-      const x = (evt.clientX - rect.left) * scaleX;
-      const y = (evt.clientY - rect.top) * scaleY;
-
-      const pixelX = Math.floor(x / (displayCanvas.width / SKIN_SIZE));
-      const pixelY = Math.floor(y / (displayCanvas.height / SKIN_SIZE));
-
-      setPixel(pixelX, pixelY, currentColor);
-    }
-
-    // 3D-Cube-Textur aktualisieren
-    function updateCubeTexture() {
-      const dataURL = skinCanvas.toDataURL('image/png');
-      const faces = cubeEl.querySelectorAll('.cube-face');
-      faces.forEach(face => {
-        face.style.backgroundImage = `url(${dataURL})`;
-      });
-    }
-
-    // Download
-    function downloadSkin() {
-      const link = document.createElement('a');
-      link.href = skinCanvas.toDataURL('image/png');
-      link.download = 'skin.png';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // Events
-    displayCanvas.addEventListener('mousedown', (e) => {
-      handleCanvasClick(e);
-      const moveHandler = (evt) => {
-        if (evt.buttons !== 1) return;
-        handleCanvasClick(evt);
-      };
-      const upHandler = () => {
-        window.removeEventListener('mousemove', moveHandler);
-        window.removeEventListener('mouseup', upHandler);
-      };
-      window.addEventListener('mousemove', moveHandler);
-      window.addEventListener('mouseup', upHandler);
-    });
-
-    colorPicker.addEventListener('input', (e) => {
-      currentColor = e.target.value;
-      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-    });
-
-    downloadBtn.addEventListener('click', downloadSkin);
-    clearBtn.addEventListener('click', clearSkin);
-
-    // Init
-    buildPalette();
-    clearSkin();
-  </script>
+/* init */
+redraw(); applyTransform();
+</script>
 </body>
 </html>
