@@ -3,607 +3,880 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Minecraft Skin Pixler – 64×64 mit 3D</title>
+<title>Minecraft Skin Editor – 64×64 Template + 3D</title>
+
 <style>
   :root{
-    --bg:#071022;--card:#0f1724;--muted:#9fb0d6;--accent:#4fc3f7;--glass:rgba(255,255,255,0.06);
+    --bg:#071022;
+    --card:#0f1724;
+    --muted:#9fb0d6;
+    --accent:#4fc3f7;
+    --glass:rgba(255,255,255,0.06);
   }
-  *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Arial}
+
+  *{
+    box-sizing:border-box;
+    font-family:Inter,system-ui,Segoe UI,Arial;
+  }
+
   body{
-    margin:0;background:linear-gradient(180deg,#071022,#02030a);
-    color:#eaf2ff;display:flex;justify-content:center;padding:18px;
+    margin:0;
+    background:linear-gradient(180deg,#071022,#02030a);
+    color:#eaf2ff;
+    display:flex;
+    justify-content:center;
+    padding:18px;
   }
+
   .app{
-    width:100%;max-width:1400px;
-    display:grid;grid-template-columns:260px 1fr 420px;gap:16px;
+    width:100%;
+    max-width:1500px;
+    display:grid;
+    grid-template-columns:260px 1fr 420px;
+    gap:16px;
   }
+
   .card{
     background:linear-gradient(180deg,var(--card),#07101a);
-    border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.04);
+    border-radius:12px;
+    padding:14px;
+    border:1px solid rgba(255,255,255,0.04);
   }
-  h1{margin:0 0 8px;font-size:16px}
-  .hint{font-size:13px;color:var(--muted);margin-top:8px}
+
+  h1{
+    margin:0 0 8px;
+    font-size:16px;
+  }
+
+  .hint{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:8px;
+  }
+
   #editor{
-    width:640px;height:640px;image-rendering:pixelated;
-    border-radius:10px;border:1px solid rgba(255,255,255,0.08);
-    background:#0b1220;display:block;cursor:crosshair;
+    width:640px;
+    height:640px;
+    image-rendering:pixelated;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:#0b1220;
+    display:block;
+    cursor:crosshair;
   }
-  .editor-wrap{display:flex;flex-direction:column;align-items:center}
-  .toolbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+  .editor-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .toolbar{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+
   .btn{
-    padding:8px 10px;border-radius:8px;border:none;cursor:pointer;
-    background:linear-gradient(180deg,var(--accent),#0288d1);color:#042033;
+    padding:8px 10px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    background:linear-gradient(180deg,var(--accent),#0288d1);
+    color:#042033;
   }
+
   .btn.alt{
-    background:#0b1220;color:var(--muted);
+    background:#0b1220;
+    color:var(--muted);
     border:1px solid rgba(255,255,255,0.08);
   }
+
   #glcanvas{
-    width:360px;height:360px;border-radius:10px;
-    border:1px solid rgba(255,255,255,0.08);background:#071022;
+    width:360px;
+    height:360px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:#071022;
   }
-  .right-col{display:flex;flex-direction:column;align-items:center;gap:10px}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+
+  .right-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+
+  .row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-top:8px;
+  }
+
   #hoverLabel{
-    position:absolute;pointer-events:none;
-    padding:4px 6px;border-radius:6px;
-    background:rgba(0,0,0,0.8);color:#fff;font-size:11px;
-    transform:translate(-50%,-120%);white-space:nowrap;display:none;z-index:10;
+    position:absolute;
+    pointer-events:none;
+    padding:4px 6px;
+    border-radius:6px;
+    background:rgba(0,0,0,0.8);
+    color:#fff;
+    font-size:11px;
+    transform:translate(-50%,-120%);
+    white-space:nowrap;
+    display:none;
+    z-index:10;
   }
+
   #colorField{
-    width:140px;height:80px;border-radius:8px;
-    border:1px solid rgba(255,255,255,0.15);cursor:crosshair;display:block;
+    width:140px;
+    height:80px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.15);
+    cursor:crosshair;
+    display:block;
   }
+
   #colorPreview{
-    width:32px;height:32px;border-radius:6px;
-    border:1px solid rgba(255,255,255,0.3);background:#ffcc00;
+    width:32px;
+    height:32px;
+    border-radius:6px;
+    border:1px solid rgba(255,255,255,0.3);
+    background:#ffcc00;
   }
-  @media(max-width:1100px){.app{grid-template-columns:1fr}}
+
+  @media(max-width:1100px){
+    .app{
+      grid-template-columns:1fr;
+    }
+  }
 </style>
 </head>
+
 <body>
+
 <div id="hoverLabel"></div>
+
 <div class="app">
-  <!-- LEFT -->
+
+  <!-- LEFT PANEL -->
   <div class="card">
     <h1>Werkzeuge & Farben</h1>
+
     <div class="row">
       <button class="btn alt" id="brushBtn">Pinsel</button>
       <button class="btn alt" id="eraserBtn">Radierer (Shift)</button>
     </div>
+
     <div class="row">
       <button class="btn alt" id="mirrorBtn">Spiegel: Aus</button>
       <button class="btn alt" id="overlayBtn">Overlay: Aus</button>
     </div>
+
     <div class="row">
       <input id="colorPicker" type="color" value="#ffcc00" />
       <div id="colorPreview"></div>
     </div>
+
     <div class="row">
       <canvas id="colorField"></canvas>
     </div>
+
     <div class="row">
       <button class="btn" id="clearBtn">Leeren</button>
       <button class="btn" id="downloadBtn">Skin herunterladen</button>
     </div>
+
     <div class="hint">
       • Strg + Mausrad: Zoom<br>
-      • Shift halten: temporär Radierer<br>
-      • Alles innerhalb der markierten Flächen ist bemalbar.
+      • Shift halten: Radierer<br>
+      • Nur echte Skin‑Flächen sind bemalbar.
     </div>
   </div>
 
-  <!-- CENTER -->
+  <!-- CENTER PANEL -->
   <div class="card editor-wrap">
     <h1>2D Editor – Minecraft 64×64 Skin</h1>
     <canvas id="editor" width="640" height="640"></canvas>
+
     <div class="hint">
-      Dünne Linien markieren alle Flächen (Head, Body, Arms, Legs – Front/Back/Left/Right/Top/Bottom).<br>
-      Beim Hover siehst du den Namen der Fläche.
+      Exaktes Minecraft‑Layout (A1).<br>
+      Hover zeigt Flächen‑Namen.<br>
+      Outlines zeigen alle Körperteile.
     </div>
   </div>
 
-  <!-- RIGHT -->
+  <!-- RIGHT PANEL -->
   <div class="card right-col">
     <h1>3D Vorschau</h1>
     <canvas id="glcanvas"></canvas>
+
     <div class="row">
       <button class="btn alt" id="resetCam">Reset Kamera</button>
       <button class="btn" id="autoSpinBtn">Auto Spin</button>
     </div>
+
     <div class="hint">
       Drehen: Drag • Zoomen: Mausrad<br>
-      Der Skin wird live auf Kopf, Körper, Arme und Beine gemappt.
+      Live‑Sync mit dem 2D‑Editor.
     </div>
   </div>
+
 </div>
 
+<!-- SCRIPT START (wird in Paket 2 & 3 fortgesetzt) -->
 <script>
-/* ===== Grund-Setup ===== */
+/* ============================================================
+   PAKET 2 — 2D EDITOR LOGIK
+   ============================================================ */
+
+/* ===== Canvas Setup ===== */
 const SKIN_SIZE = 64;
-const skin = document.createElement('canvas');
-skin.width = SKIN_SIZE; skin.height = SKIN_SIZE;
-const sctx = skin.getContext('2d');
-sctx.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
 
-const overlay = document.createElement('canvas');
-overlay.width = SKIN_SIZE; overlay.height = SKIN_SIZE;
-const octx = overlay.getContext('2d');
-octx.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
+const skin = document.createElement("canvas");
+skin.width = SKIN_SIZE;
+skin.height = SKIN_SIZE;
+const sctx = skin.getContext("2d");
 
-const editor = document.getElementById('editor');
-const ectx = editor.getContext('2d');
+const overlay = document.createElement("canvas");
+overlay.width = SKIN_SIZE;
+overlay.height = SKIN_SIZE;
+const octx = overlay.getContext("2d");
+
+sctx.clearRect(0, 0, SKIN_SIZE, SKIN_SIZE);
+octx.clearRect(0, 0, SKIN_SIZE, SKIN_SIZE);
+
+const editor = document.getElementById("editor");
+const ectx = editor.getContext("2d");
+
 let displaySize = editor.width;
 let viewScale = displaySize / SKIN_SIZE;
 
-let tool = 'brush';
+let tool = "brush";
 let mirror = false;
 let overlayEnabled = false;
-let currentColor = '#ffcc00';
+let currentColor = "#ffcc00";
 let painting = false;
 
-const hoverLabel = document.getElementById('hoverLabel');
+const hoverLabel = document.getElementById("hoverLabel");
 let hoverArea = null;
 
-const colorPreview = document.getElementById('colorPreview');
-const colorField = document.getElementById('colorField');
-const cfCtx = colorField.getContext('2d');
+/* ============================================================
+   ECHTES MINECRAFT 64×64 LAYOUT (A1)
+   ============================================================ */
 
-/* ===== Flächen-Definitionen ===== */
 const SKIN_AREAS = [
-  // HEAD
-  { part:"Head", face:"Front",  x:8,  y:8,  w:8, h:8 },
-  { part:"Head", face:"Back",   x:24, y:8,  w:8, h:8 },
-  { part:"Head", face:"Left",   x:0,  y:8,  w:8, h:8 },
-  { part:"Head", face:"Right",  x:16, y:8,  w:8, h:8 },
+  /* ===== HEAD ===== */
   { part:"Head", face:"Top",    x:8,  y:0,  w:8, h:8 },
   { part:"Head", face:"Bottom", x:16, y:0,  w:8, h:8 },
+  { part:"Head", face:"Left",   x:0,  y:8,  w:8, h:8 },
+  { part:"Head", face:"Front",  x:8,  y:8,  w:8, h:8 },
+  { part:"Head", face:"Right",  x:16, y:8,  w:8, h:8 },
+  { part:"Head", face:"Back",   x:24, y:8,  w:8, h:8 },
 
-  // BODY
-  { part:"Body", face:"Front",  x:20, y:20, w:8, h:12 },
-  { part:"Body", face:"Back",   x:32, y:20, w:8, h:12 },
-  { part:"Body", face:"Left",   x:16, y:20, w:4, h:12 },
-  { part:"Body", face:"Right",  x:28, y:20, w:4, h:12 },
+  /* ===== BODY ===== */
   { part:"Body", face:"Top",    x:20, y:16, w:8, h:4 },
   { part:"Body", face:"Bottom", x:28, y:16, w:8, h:4 },
+  { part:"Body", face:"Left",   x:16, y:20, w:4, h:12 },
+  { part:"Body", face:"Front",  x:20, y:20, w:8, h:12 },
+  { part:"Body", face:"Right",  x:28, y:20, w:4, h:12 },
+  { part:"Body", face:"Back",   x:32, y:20, w:8, h:12 },
 
-  // RIGHT ARM
-  { part:"Right Arm", face:"Front",  x:44, y:20, w:4, h:12 },
-  { part:"Right Arm", face:"Back",   x:52, y:20, w:4, h:12 },
-  { part:"Right Arm", face:"Left",   x:40, y:20, w:4, h:12 },
-  { part:"Right Arm", face:"Right",  x:48, y:20, w:4, h:12 },
+  /* ===== RIGHT ARM ===== */
   { part:"Right Arm", face:"Top",    x:44, y:16, w:4, h:4 },
   { part:"Right Arm", face:"Bottom", x:48, y:16, w:4, h:4 },
+  { part:"Right Arm", face:"Left",   x:40, y:20, w:4, h:12 },
+  { part:"Right Arm", face:"Front",  x:44, y:20, w:4, h:12 },
+  { part:"Right Arm", face:"Right",  x:48, y:20, w:4, h:12 },
+  { part:"Right Arm", face:"Back",   x:52, y:20, w:4, h:12 },
 
-  // LEFT ARM
-  { part:"Left Arm", face:"Front",  x:36, y:52, w:4, h:12 },
-  { part:"Left Arm", face:"Back",   x:44, y:52, w:4, h:12 },
-  { part:"Left Arm", face:"Left",   x:32, y:52, w:4, h:12 },
-  { part:"Left Arm", face:"Right",  x:40, y:52, w:4, h:12 },
+  /* ===== LEFT ARM ===== */
   { part:"Left Arm", face:"Top",    x:36, y:48, w:4, h:4 },
   { part:"Left Arm", face:"Bottom", x:40, y:48, w:4, h:4 },
+  { part:"Left Arm", face:"Left",   x:32, y:52, w:4, h:12 },
+  { part:"Left Arm", face:"Front",  x:36, y:52, w:4, h:12 },
+  { part:"Left Arm", face:"Right",  x:40, y:52, w:4, h:12 },
+  { part:"Left Arm", face:"Back",   x:44, y:52, w:4, h:12 },
 
-  // RIGHT LEG
-  { part:"Right Leg", face:"Front",  x:4,  y:20, w:4, h:12 },
-  { part:"Right Leg", face:"Back",   x:12, y:20, w:4, h:12 },
-  { part:"Right Leg", face:"Left",   x:0,  y:20, w:4, h:12 },
-  { part:"Right Leg", face:"Right",  x:8,  y:20, w:4, h:12 },
+  /* ===== RIGHT LEG ===== */
   { part:"Right Leg", face:"Top",    x:4,  y:16, w:4, h:4 },
   { part:"Right Leg", face:"Bottom", x:8,  y:16, w:4, h:4 },
+  { part:"Right Leg", face:"Left",   x:0,  y:20, w:4, h:12 },
+  { part:"Right Leg", face:"Front",  x:4,  y:20, w:4, h:12 },
+  { part:"Right Leg", face:"Right",  x:8,  y:20, w:4, h:12 },
+  { part:"Right Leg", face:"Back",   x:12, y:20, w:4, h:12 },
 
-  // LEFT LEG
-  { part:"Left Leg", face:"Front",  x:20, y:52, w:4, h:12 },
-  { part:"Left Leg", face:"Back",   x:28, y:52, w:4, h:12 },
-  { part:"Left Leg", face:"Left",   x:16, y:52, w:4, h:12 },
-  { part:"Left Leg", face:"Right",  x:24, y:52, w:4, h:12 },
+  /* ===== LEFT LEG ===== */
   { part:"Left Leg", face:"Top",    x:20, y:48, w:4, h:4 },
   { part:"Left Leg", face:"Bottom", x:24, y:48, w:4, h:4 },
+  { part:"Left Leg", face:"Left",   x:16, y:52, w:4, h:12 },
+  { part:"Left Leg", face:"Front",  x:20, y:52, w:4, h:12 },
+  { part:"Left Leg", face:"Right",  x:24, y:52, w:4, h:12 },
+  { part:"Left Leg", face:"Back",   x:28, y:52, w:4, h:12 },
 ];
 
-/* ===== UI-Events ===== */
-document.getElementById('brushBtn').onclick = ()=> tool='brush';
-document.getElementById('eraserBtn').onclick = ()=> tool='eraser';
-document.getElementById('mirrorBtn').onclick = ()=>{
-  mirror = !mirror;
-  document.getElementById('mirrorBtn').textContent = 'Spiegel: ' + (mirror?'An':'Aus');
-};
-document.getElementById('overlayBtn').onclick = ()=>{
-  overlayEnabled = !overlayEnabled;
-  document.getElementById('overlayBtn').textContent = 'Overlay: ' + (overlayEnabled?'An':'Aus');
-  redraw(); updateGL();
-};
-document.getElementById('colorPicker').oninput = e=>{
-  currentColor = e.target.value;
-  colorPreview.style.background = currentColor;
-};
-document.getElementById('clearBtn').onclick = ()=>{
-  sctx.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
-  octx.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
-  redraw(); updateGL();
-};
-document.getElementById('downloadBtn').onclick = ()=>{
-  const out = document.createElement('canvas');
-  out.width = SKIN_SIZE; out.height = SKIN_SIZE;
-  const o = out.getContext('2d');
-  o.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
-  o.drawImage(skin,0,0);
-  o.drawImage(overlay,0,0);
-  const a = document.createElement('a');
-  a.href = out.toDataURL('image/png');
-  a.download = 'skin.png';
-  document.body.appendChild(a); a.click(); a.remove();
-};
+/* ============================================================
+   FARBFELD (Hover‑Preview + Klick‑Auswahl)
+   ============================================================ */
 
-/* ===== Farb-Feld (Palette) ===== */
-function drawColorField(){
+const colorField = document.getElementById("colorField");
+const cfCtx = colorField.getContext("2d");
+const colorPreview = document.getElementById("colorPreview");
+
+function drawColorField() {
   const w = colorField.width;
   const h = colorField.height;
-  const gradH = cfCtx.createLinearGradient(0,0,w,0);
-  gradH.addColorStop(0,'red');
-  gradH.addColorStop(0.16,'yellow');
-  gradH.addColorStop(0.33,'lime');
-  gradH.addColorStop(0.5,'cyan');
-  gradH.addColorStop(0.66,'blue');
-  gradH.addColorStop(0.83,'magenta');
-  gradH.addColorStop(1,'red');
-  cfCtx.fillStyle = gradH;
-  cfCtx.fillRect(0,0,w,h);
 
-  const gradV = cfCtx.createLinearGradient(0,0,0,h);
-  gradV.addColorStop(0,'rgba(255,255,255,1)');
-  gradV.addColorStop(0.5,'rgba(255,255,255,0)');
-  gradV.addColorStop(1,'rgba(0,0,0,1)');
+  const gradH = cfCtx.createLinearGradient(0, 0, w, 0);
+  gradH.addColorStop(0, "red");
+  gradH.addColorStop(0.16, "yellow");
+  gradH.addColorStop(0.33, "lime");
+  gradH.addColorStop(0.5, "cyan");
+  gradH.addColorStop(0.66, "blue");
+  gradH.addColorStop(0.83, "magenta");
+  gradH.addColorStop(1, "red");
+
+  cfCtx.fillStyle = gradH;
+  cfCtx.fillRect(0, 0, w, h);
+
+  const gradV = cfCtx.createLinearGradient(0, 0, 0, h);
+  gradV.addColorStop(0, "rgba(255,255,255,1)");
+  gradV.addColorStop(0.5, "rgba(255,255,255,0)");
+  gradV.addColorStop(1, "rgba(0,0,0,1)");
+
   cfCtx.fillStyle = gradV;
-  cfCtx.fillRect(0,0,w,h);
+  cfCtx.fillRect(0, 0, w, h);
 }
 drawColorField();
 
-function getColorFromField(x,y){
-  const data = cfCtx.getImageData(x,y,1,1).data;
-  return `rgb(${data[0]},${data[1]},${data[2]})`;
+function getColorFromField(x, y) {
+  const d = cfCtx.getImageData(x, y, 1, 1).data;
+  return `rgb(${d[0]},${d[1]},${d[2]})`;
 }
 
-colorField.addEventListener('mousemove', e=>{
-  const rect = colorField.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) * (colorField.width / rect.width));
-  const y = Math.floor((e.clientY - rect.top) * (colorField.height / rect.height));
-  if(x<0||y<0||x>=colorField.width||y>=colorField.height) return;
-  const col = getColorFromField(x,y);
-  colorPreview.style.background = col;
+colorField.addEventListener("mousemove", (e) => {
+  const r = colorField.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) * (colorField.width / r.width));
+  const y = Math.floor((e.clientY - r.top) * (colorField.height / r.height));
+  if (x < 0 || y < 0 || x >= colorField.width || y >= colorField.height) return;
+  colorPreview.style.background = getColorFromField(x, y);
 });
 
-colorField.addEventListener('mouseleave', ()=>{
+colorField.addEventListener("mouseleave", () => {
   colorPreview.style.background = currentColor;
 });
 
-colorField.addEventListener('click', e=>{
-  const rect = colorField.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) * (colorField.width / rect.width));
-  const y = Math.floor((e.clientY - rect.top) * (colorField.height / rect.height));
-  if(x<0||y<0||x>=colorField.width||y>=colorField.height) return;
-  const col = getColorFromField(x,y);
-  currentColor = col;
+colorField.addEventListener("click", (e) => {
+  const r = colorField.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) * (colorField.width / r.width));
+  const y = Math.floor((e.clientY - r.top) * (colorField.height / r.height));
+  currentColor = getColorFromField(x, y);
   colorPreview.style.background = currentColor;
 });
 
-/* ===== Zeichnen im Editor ===== */
-function redraw(){
-  ectx.fillStyle = '#0b1220';
-  ectx.fillRect(0,0,displaySize,displaySize);
+/* ============================================================
+   OUTLINES + HOVER‑LABELS
+   ============================================================ */
 
-  ectx.imageSmoothingEnabled = false;
-  ectx.drawImage(skin,0,0,SKIN_SIZE,SKIN_SIZE,0,0,displaySize,displaySize);
-  ectx.globalAlpha = overlayEnabled ? 1.0 : 0.6;
-  ectx.drawImage(overlay,0,0,SKIN_SIZE,SKIN_SIZE,0,0,displaySize,displaySize);
-  ectx.globalAlpha = 1.0;
+function drawSkinAreas(ctx, scale, hover) {
+  SKIN_AREAS.forEach((a) => {
+    const x = a.x * scale;
+    const y = a.y * scale;
+    const w = a.w * scale;
+    const h = a.h * scale;
 
-  // Grid
-  ectx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ectx.lineWidth = 1;
-  for(let i=0;i<=SKIN_SIZE;i++){
-    const p = i*viewScale + 0.5;
-    ectx.beginPath(); ectx.moveTo(p,0); ectx.lineTo(p,displaySize); ectx.stroke();
-    ectx.beginPath(); ectx.moveTo(0,p); ectx.lineTo(displaySize,p); ectx.stroke();
-  }
-
-  // Flächen-Outlines + Hover
-  drawSkinAreas(ectx, viewScale, hoverArea);
-}
-
-function drawSkinAreas(ctx, scale, hover){
-  SKIN_AREAS.forEach(area=>{
-    const x = area.x * scale;
-    const y = area.y * scale;
-    const w = area.w * scale;
-    const h = area.h * scale;
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
     ctx.lineWidth = 1.5;
     ctx.strokeRect(x, y, w, h);
 
-    if(hover === area){
-      ctx.fillStyle = 'rgba(80,160,255,0.25)';
+    if (hover === a) {
+      ctx.fillStyle = "rgba(80,160,255,0.25)";
       ctx.fillRect(x, y, w, h);
     }
   });
 }
 
-function getHoverArea(px, py, scale){
-  return SKIN_AREAS.find(a=>{
-    return px >= a.x*scale && px <= (a.x+a.w)*scale &&
-           py >= a.y*scale && py <= (a.y+a.h)*scale;
-  }) || null;
+function getHoverArea(px, py, scale) {
+  return (
+    SKIN_AREAS.find(
+      (a) =>
+        px >= a.x * scale &&
+        px <= (a.x + a.w) * scale &&
+        py >= a.y * scale &&
+        py <= (a.y + a.h) * scale
+    ) || null
+  );
 }
 
-function isInsideAnyArea(px,py){
-  return SKIN_AREAS.some(a=>{
-    return px >= a.x && px < a.x+a.w &&
-           py >= a.y && py < a.y+a.h;
-  });
+function isInsideAnyArea(px, py) {
+  return SKIN_AREAS.some(
+    (a) => px >= a.x && px < a.x + a.w && py >= a.y && py < a.y + a.h
+  );
 }
 
-function setPixel(px,py,color,useOverlay){
-  if(px<0||px>=SKIN_SIZE||py<0||py>=SKIN_SIZE) return;
+/* ============================================================
+   ZEICHNEN
+   ============================================================ */
+
+function redraw() {
+  ectx.fillStyle = "#0b1220";
+  ectx.fillRect(0, 0, displaySize, displaySize);
+
+  ectx.imageSmoothingEnabled = false;
+  ectx.drawImage(skin, 0, 0, SKIN_SIZE, SKIN_SIZE, 0, 0, displaySize, displaySize);
+
+  ectx.globalAlpha = overlayEnabled ? 1.0 : 0.6;
+  ectx.drawImage(
+    overlay,
+    0,
+    0,
+    SKIN_SIZE,
+    SKIN_SIZE,
+    0,
+    0,
+    displaySize,
+    displaySize
+  );
+  ectx.globalAlpha = 1.0;
+
+  drawSkinAreas(ectx, viewScale, hoverArea);
+}
+
+/* ============================================================
+   MALEN
+   ============================================================ */
+
+function setPixel(px, py, color, useOverlay) {
+  if (px < 0 || px >= SKIN_SIZE || py < 0 || py >= SKIN_SIZE) return;
   const ctx = useOverlay ? octx : sctx;
-  if(color === null){
-    ctx.clearRect(px,py,1,1);
-  }else{
+  if (color === null) ctx.clearRect(px, py, 1, 1);
+  else {
     ctx.fillStyle = color;
-    ctx.fillRect(px,py,1,1);
+    ctx.fillRect(px, py, 1, 1);
   }
 }
 
-/* ===== Maus-Interaktion ===== */
-editor.addEventListener('mousedown', e=>{
-  painting = true;
-  paintAt(e);
-});
-window.addEventListener('mouseup', ()=> painting=false);
-editor.addEventListener('mousemove', e=>{
-  const rect = editor.getBoundingClientRect();
-  const scaleX = editor.width / rect.width;
-  const scaleY = editor.height / rect.height;
-  const x = (e.clientX - rect.left) * scaleX;
-  const y = (e.clientY - rect.top) * scaleY;
+function paintAt(e) {
+  const r = editor.getBoundingClientRect();
+  const sx = editor.width / r.width;
+  const sy = editor.height / r.height;
 
-  hoverArea = getHoverArea(x, y, viewScale);
-  if(hoverArea){
-    hoverLabel.style.display = 'block';
-    hoverLabel.textContent = `${hoverArea.part} – ${hoverArea.face}`;
-    hoverLabel.style.left = e.clientX + 'px';
-    hoverLabel.style.top = e.clientY + 'px';
-  }else{
-    hoverLabel.style.display = 'none';
-  }
+  const x = (e.clientX - r.left) * sx;
+  const y = (e.clientY - r.top) * sy;
 
-  if(painting) paintAt(e);
-  else redraw();
-});
-
-editor.addEventListener('wheel', e=>{
-  if(e.ctrlKey){
-    e.preventDefault();
-    const d = Math.sign(e.deltaY);
-    viewScale = Math.max(4, Math.min(20, viewScale - d));
-    displaySize = SKIN_SIZE * viewScale;
-    editor.width = displaySize;
-    editor.height = displaySize;
-    redraw();
-  }
-},{passive:false});
-
-function paintAt(e){
-  const rect = editor.getBoundingClientRect();
-  const scaleX = editor.width / rect.width;
-  const scaleY = editor.height / rect.height;
-  const x = (e.clientX - rect.left) * scaleX;
-  const y = (e.clientY - rect.top) * scaleY;
   const px = Math.floor(x / viewScale);
   const py = Math.floor(y / viewScale);
 
-  // Nur innerhalb der definierten Körperflächen malen
-  if(!isInsideAnyArea(px,py)) return;
+  if (!isInsideAnyArea(px, py)) return;
 
   const useOverlay = overlayEnabled;
-  if(tool === 'eraser' || e.shiftKey){
-    setPixel(px,py,null,useOverlay);
-    if(mirror) setPixel(SKIN_SIZE-1-px,py,null,useOverlay);
-  }else{
-    setPixel(px,py,currentColor,useOverlay);
-    if(mirror) setPixel(SKIN_SIZE-1-px,py,currentColor,useOverlay);
+
+  if (tool === "eraser" || e.shiftKey) {
+    setPixel(px, py, null, useOverlay);
+    if (mirror) setPixel(SKIN_SIZE - 1 - px, py, null, useOverlay);
+  } else {
+    setPixel(px, py, currentColor, useOverlay);
+    if (mirror) setPixel(SKIN_SIZE - 1 - px, py, currentColor, useOverlay);
   }
-  redraw(); updateGL();
+
+  redraw();
+  updateGL();
 }
 
-/* ===== Keyboard ===== */
-window.addEventListener('keydown', e=>{
-  if(e.key === 'Shift') tool='eraser';
-});
-window.addEventListener('keyup', e=>{
-  if(e.key === 'Shift') tool='brush';
+/* ============================================================
+   MOUSE EVENTS
+   ============================================================ */
+
+editor.addEventListener("mousedown", (e) => {
+  painting = true;
+  paintAt(e);
 });
 
-/* ===== 3D Vorschau mit three.js ===== */
-function loadScript(url){
-  return new Promise((res,rej)=>{
-    const s=document.createElement('script');
-    s.src=url; s.onload=res; s.onerror=rej;
+window.addEventListener("mouseup", () => (painting = false));
+
+editor.addEventListener("mousemove", (e) => {
+  const r = editor.getBoundingClientRect();
+  const sx = editor.width / r.width;
+  const sy = editor.height / r.height;
+
+  const x = (e.clientX - r.left) * sx;
+  const y = (e.clientY - r.top) * sy;
+
+  hoverArea = getHoverArea(x, y, viewScale);
+
+  if (hoverArea) {
+    hoverLabel.style.display = "block";
+    hoverLabel.textContent = `${hoverArea.part} – ${hoverArea.face}`;
+    hoverLabel.style.left = e.clientX + "px";
+    hoverLabel.style.top = e.clientY + "px";
+  } else {
+    hoverLabel.style.display = "none";
+  }
+
+  if (painting) paintAt(e);
+  else redraw();
+});
+
+editor.addEventListener(
+  "wheel",
+  (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      const d = Math.sign(e.deltaY);
+      viewScale = Math.max(4, Math.min(20, viewScale - d));
+      displaySize = SKIN_SIZE * viewScale;
+      editor.width = displaySize;
+      editor.height = displaySize;
+      redraw();
+    }
+  },
+  { passive: false }
+);
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+document.getElementById("brushBtn").onclick = () => (tool = "brush");
+document.getElementById("eraserBtn").onclick = () => (tool = "eraser");
+
+document.getElementById("mirrorBtn").onclick = () => {
+  mirror = !mirror;
+  document.getElementById("mirrorBtn").textContent =
+    "Spiegel: " + (mirror ? "An" : "Aus");
+};
+
+document.getElementById("overlayBtn").onclick = () => {
+  overlayEnabled = !overlayEnabled;
+  document.getElementById("overlayBtn").textContent =
+    "Overlay: " + (overlayEnabled ? "An" : "Aus");
+  redraw();
+  updateGL();
+};
+
+document.getElementById("colorPicker").oninput = (e) => {
+  currentColor = e.target.value;
+  colorPreview.style.background = currentColor;
+};
+
+document.getElementById("clearBtn").onclick = () => {
+  sctx.clearRect(0, 0, SKIN_SIZE, SKIN_SIZE);
+  octx.clearRect(0, 0, SKIN_SIZE, SKIN_SIZE);
+  redraw();
+  updateGL();
+};
+
+document.getElementById("downloadBtn").onclick = () => {
+  const out = document.createElement("canvas");
+  out.width = SKIN_SIZE;
+  out.height = SKIN_SIZE;
+  const o = out.getContext("2d");
+
+  o.drawImage(skin, 0, 0);
+  o.drawImage(overlay, 0, 0);
+
+  const a = document.createElement("a");
+  a.href = out.toDataURL("image/png");
+  a.download = "skin.png";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+/* ============================================================
+   KEYBOARD
+   ============================================================ */
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Shift") tool = "eraser";
+});
+
+window.addEventListener("keyup", (e) => {
+  if (e.key === "Shift") tool = "brush";
+});
+
+/* ============================================================
+   INITIAL DRAW
+   ============================================================ */
+
+colorPreview.style.background = currentColor;
+redraw();
+/* ============================================================
+   PAKET 3 — 3D ENGINE (three.js) + UV-MAPPING + LIVE-SYNC
+   ============================================================ */
+
+let updateGL = () => {}; // wird später ersetzt
+
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = url;
+    s.onload = resolve;
+    s.onerror = reject;
     document.head.appendChild(s);
   });
 }
 
-let updateGL = ()=>{};
-
-(async function initThree(){
-  try{
-    await loadScript('https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js');
-    await loadScript('https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js');
-  }catch(e){
-    console.error('three.js konnte nicht geladen werden',e);
+(async function initThree() {
+  try {
+    await loadScript("https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js");
+    await loadScript("https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js");
+  } catch (e) {
+    console.error("three.js konnte nicht geladen werden", e);
     return;
   }
 
-  const canvas = document.getElementById('glcanvas');
-  const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  const canvas = document.getElementById("glcanvas");
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    alpha: true
+  });
+
   renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
   renderer.setPixelRatio(window.devicePixelRatio || 1);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.1, 1000);
-  camera.position.set(0,10,30);
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    1000
+  );
+  camera.position.set(0, 10, 30);
 
-  const light = new THREE.DirectionalLight(0xffffff,1.0);
-  light.position.set(10,20,10);
+  const light = new THREE.DirectionalLight(0xffffff, 1.0);
+  light.position.set(10, 20, 10);
   scene.add(light);
-  scene.add(new THREE.AmbientLight(0xffffff,0.5));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
-  controls.target.set(0,8,0);
+  controls.target.set(0, 8, 0);
   controls.update();
 
   const group = new THREE.Group();
   scene.add(group);
 
-  function createBoxGeometry(w,h,d,uvMap){
-    const geom = new THREE.BoxGeometry(w,h,d);
-    const uvAttr = geom.attributes.uv;
-    for(let f=0; f<6; f++){
+  /* ============================================================
+     UV-MAPPING FÜR ALLE KÖRPERTEILE
+     ============================================================ */
+
+  function createBoxGeometry(w, h, d, uvMap) {
+    const geom = new THREE.BoxGeometry(w, h, d);
+    const uv = geom.attributes.uv;
+
+    for (let f = 0; f < 6; f++) {
       const face = uvMap[f];
-      const sx = face[0]/SKIN_SIZE;
-      const sy = face[1]/SKIN_SIZE;
-      const sw = face[2]/SKIN_SIZE;
-      const sh = face[3]/SKIN_SIZE;
-      const idx = f*8;
-      uvAttr.array[idx+0] = sx;      uvAttr.array[idx+1] = sy+sh;
-      uvAttr.array[idx+2] = sx+sw;   uvAttr.array[idx+3] = sy+sh;
-      uvAttr.array[idx+4] = sx+sw;   uvAttr.array[idx+5] = sy;
-      uvAttr.array[idx+6] = sx;      uvAttr.array[idx+7] = sy;
+      const sx = face[0] / SKIN_SIZE;
+      const sy = face[1] / SKIN_SIZE;
+      const sw = face[2] / SKIN_SIZE;
+      const sh = face[3] / SKIN_SIZE;
+
+      const i = f * 8;
+      uv.array[i + 0] = sx;
+      uv.array[i + 1] = sy + sh;
+
+      uv.array[i + 2] = sx + sw;
+      uv.array[i + 3] = sy + sh;
+
+      uv.array[i + 4] = sx + sw;
+      uv.array[i + 5] = sy;
+
+      uv.array[i + 6] = sx;
+      uv.array[i + 7] = sy;
     }
-    uvAttr.needsUpdate = true;
+
+    uv.needsUpdate = true;
     return geom;
   }
 
+  /* ===== HEAD ===== */
   const headUV = [
-    [16,8,8,8],  // +X right
-    [0,8,8,8],   // -X left
-    [8,0,8,8],   // +Y top
-    [16,0,8,8],  // -Y bottom
-    [8,8,8,8],   // +Z front
-    [24,8,8,8],  // -Z back
+    [16, 8, 8, 8],  // +X
+    [0, 8, 8, 8],   // -X
+    [8, 0, 8, 8],   // +Y
+    [16, 0, 8, 8],  // -Y
+    [8, 8, 8, 8],   // +Z
+    [24, 8, 8, 8],  // -Z
   ];
+
+  /* ===== BODY ===== */
   const bodyUV = [
-    [28,20,4,12], // +X
-    [16,20,4,12], // -X
-    [20,16,8,4],  // +Y
-    [28,16,8,4],  // -Y
-    [20,20,8,12], // +Z
-    [32,20,8,12], // -Z
+    [28, 20, 4, 12],
+    [16, 20, 4, 12],
+    [20, 16, 8, 4],
+    [28, 16, 8, 4],
+    [20, 20, 8, 12],
+    [32, 20, 8, 12],
   ];
+
+  /* ===== RIGHT ARM ===== */
   const rightArmUV = [
-    [48,20,4,12], // +X
-    [40,20,4,12], // -X
-    [44,16,4,4],  // +Y
-    [48,16,4,4],  // -Y
-    [44,20,4,12], // +Z
-    [52,20,4,12], // -Z
+    [48, 20, 4, 12],
+    [40, 20, 4, 12],
+    [44, 16, 4, 4],
+    [48, 16, 4, 4],
+    [44, 20, 4, 12],
+    [52, 20, 4, 12],
   ];
+
+  /* ===== LEFT ARM ===== */
   const leftArmUV = [
-    [40,52,4,12], // +X
-    [32,52,4,12], // -X
-    [36,48,4,4],  // +Y
-    [40,48,4,4],  // -Y
-    [36,52,4,12], // +Z
-    [44,52,4,12], // -Z
+    [40, 52, 4, 12],
+    [32, 52, 4, 12],
+    [36, 48, 4, 4],
+    [40, 48, 4, 4],
+    [36, 52, 4, 12],
+    [44, 52, 4, 12],
   ];
+
+  /* ===== RIGHT LEG ===== */
   const rightLegUV = [
-    [8,20,4,12],  // +X
-    [0,20,4,12],  // -X
-    [4,16,4,4],   // +Y
-    [8,16,4,4],   // -Y
-    [4,20,4,12],  // +Z
-    [12,20,4,12], // -Z
+    [8, 20, 4, 12],
+    [0, 20, 4, 12],
+    [4, 16, 4, 4],
+    [8, 16, 4, 4],
+    [4, 20, 4, 12],
+    [12, 20, 4, 12],
   ];
+
+  /* ===== LEFT LEG ===== */
   const leftLegUV = [
-    [24,52,4,12], // +X
-    [16,52,4,12], // -X
-    [20,48,4,4],  // +Y
-    [24,48,4,4],  // -Y
-    [20,52,4,12], // +Z
-    [28,52,4,12], // -Z
+    [24, 52, 4, 12],
+    [16, 52, 4, 12],
+    [20, 48, 4, 4],
+    [24, 48, 4, 4],
+    [20, 52, 4, 12],
+    [28, 52, 4, 12],
   ];
 
-  const unit = 0.125;
+  /* ============================================================
+     TEXTUR (Skin + Overlay)
+     ============================================================ */
 
-  const texCanvas = document.createElement('canvas');
-  texCanvas.width = SKIN_SIZE; texCanvas.height = SKIN_SIZE;
-  const texCtx = texCanvas.getContext('2d');
+  const texCanvas = document.createElement("canvas");
+  texCanvas.width = SKIN_SIZE;
+  texCanvas.height = SKIN_SIZE;
+  const texCtx = texCanvas.getContext("2d");
+
   const texture = new THREE.CanvasTexture(texCanvas);
   texture.magFilter = THREE.NearestFilter;
   texture.minFilter = THREE.NearestFilter;
 
-  const material = new THREE.MeshLambertMaterial({map:texture,transparent:true});
+  const material = new THREE.MeshLambertMaterial({
+    map: texture,
+    transparent: true
+  });
 
-  const head = new THREE.Mesh(createBoxGeometry(8*unit,8*unit,8*unit, headUV), material);
-  head.position.set(0, 8*unit+12*unit, 0);
+  /* ============================================================
+     MODELLE (Kopf, Körper, Arme, Beine)
+     ============================================================ */
+
+  const unit = 0.125;
+
+  const head = new THREE.Mesh(
+    createBoxGeometry(8 * unit, 8 * unit, 8 * unit, headUV),
+    material
+  );
+  head.position.set(0, 8 * unit + 12 * unit, 0);
   group.add(head);
 
-  const body = new THREE.Mesh(createBoxGeometry(8*unit,12*unit,4*unit, bodyUV), material);
-  body.position.set(0, 12*unit, 0);
+  const body = new THREE.Mesh(
+    createBoxGeometry(8 * unit, 12 * unit, 4 * unit, bodyUV),
+    material
+  );
+  body.position.set(0, 12 * unit, 0);
   group.add(body);
 
-  const rArm = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, rightArmUV), material);
-  rArm.position.set(-6*unit, 12*unit, 0);
+  const rArm = new THREE.Mesh(
+    createBoxGeometry(4 * unit, 12 * unit, 4 * unit, rightArmUV),
+    material
+  );
+  rArm.position.set(-6 * unit, 12 * unit, 0);
   group.add(rArm);
 
-  const lArm = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, leftArmUV), material);
-  lArm.position.set(6*unit, 12*unit, 0);
+  const lArm = new THREE.Mesh(
+    createBoxGeometry(4 * unit, 12 * unit, 4 * unit, leftArmUV),
+    material
+  );
+  lArm.position.set(6 * unit, 12 * unit, 0);
   group.add(lArm);
 
-  const rLeg = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, rightLegUV), material);
-  rLeg.position.set(-2*unit, 0, 0);
+  const rLeg = new THREE.Mesh(
+    createBoxGeometry(4 * unit, 12 * unit, 4 * unit, rightLegUV),
+    material
+  );
+  rLeg.position.set(-2 * unit, 0, 0);
   group.add(rLeg);
 
-  const lLeg = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, leftLegUV), material);
-  lLeg.position.set(2*unit, 0, 0);
+  const lLeg = new THREE.Mesh(
+    createBoxGeometry(4 * unit, 12 * unit, 4 * unit, leftLegUV),
+    material
+  );
+  lLeg.position.set(2 * unit, 0, 0);
   group.add(lLeg);
 
-  function updateTexture(){
-    texCtx.clearRect(0,0,SKIN_SIZE,SKIN_SIZE);
-    texCtx.drawImage(skin,0,0);
-    texCtx.drawImage(overlay,0,0);
+  /* ============================================================
+     LIVE-SYNC TEXTUR
+     ============================================================ */
+
+  function updateTexture() {
+    texCtx.clearRect(0, 0, SKIN_SIZE, SKIN_SIZE);
+    texCtx.drawImage(skin, 0, 0);
+    texCtx.drawImage(overlay, 0, 0);
     texture.needsUpdate = true;
   }
+
   updateGL = updateTexture;
   updateTexture();
 
+  /* ============================================================
+     AUTO-SPIN + RESET
+     ============================================================ */
+
   let autoSpin = false;
-  document.getElementById('autoSpinBtn').onclick = ()=> autoSpin = !autoSpin;
-  document.getElementById('resetCam').onclick = ()=>{
-    camera.position.set(0,10,30);
-    controls.target.set(0,8,0);
+
+  document.getElementById("autoSpinBtn").onclick = () => {
+    autoSpin = !autoSpin;
+  };
+
+  document.getElementById("resetCam").onclick = () => {
+    camera.position.set(0, 10, 30);
+    controls.target.set(0, 8, 0);
     controls.update();
   };
 
-  function animate(){
+  /* ============================================================
+     ANIMATION LOOP
+     ============================================================ */
+
+  function animate() {
     requestAnimationFrame(animate);
-    if(autoSpin) group.rotation.y += 0.005;
-    renderer.render(scene,camera);
+    if (autoSpin) group.rotation.y += 0.005;
+    renderer.render(scene, camera);
   }
+
   animate();
 
-  window.addEventListener('resize', ()=>{
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    renderer.setSize(w,h,false);
-    camera.aspect = w/h;
+  /* ============================================================
+     RESIZE
+     ============================================================ */
+
+  window.addEventListener("resize", () => {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
   });
 })();
 
-/* ===== Initial ===== */
-colorPreview.style.background = currentColor;
-redraw();
-updateGL();
+/* ============================================================
+   ENDE VON PAKET 3
+   ============================================================ */
 </script>
 </body>
 </html>
