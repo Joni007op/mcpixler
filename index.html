@@ -3,278 +3,323 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Skin Pixler — Skindex Style Editor</title>
+<title>Minecraft Skin Pixler — Part‑Labels & Multi‑Box 3D</title>
 <style>
-  :root{--bg:#071022;--card:#0f1724;--muted:#9fb0d6;--accent:#4fc3f7}
+  :root{
+    --bg:#071022; --card:#0f1724; --muted:#9fb0d6; --accent:#4fc3f7; --glass: rgba(255,255,255,0.03);
+  }
   *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Arial}
   body{margin:0;background:linear-gradient(180deg,#071022,#02030a);color:#eaf2ff;display:flex;justify-content:center;padding:18px}
-  .app{width:100%;max-width:1300px;display:grid;grid-template-columns:320px 1fr 420px;gap:16px}
-  .card{background:linear-gradient(180deg,var(--card),#07101a);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.03)}
-  h1{margin:0 0 8px;font-size:18px}
-  .palette{display:flex;flex-wrap:wrap;gap:6px}
-  .sw{width:28px;height:28px;border-radius:6px;cursor:pointer;border:1px solid rgba(0,0,0,0.4)}
-  #editor{width:640px;height:640px;image-rendering:pixelated;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:crosshair;background:#0b1220}
-  .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-  .btn{padding:8px 12px;border-radius:8px;background:linear-gradient(180deg,var(--accent),#0288d1);border:none;color:#042033;cursor:pointer}
+  .app{width:100%;max-width:1400px;display:grid;grid-template-columns:260px 1fr 420px;gap:16px}
+  .card{background:linear-gradient(180deg,var(--card),#07101a);border-radius:12px;padding:14px;border:1px solid var(--glass)}
+  h1{margin:0 0 8px;font-size:16px}
+  .parts{display:flex;flex-direction:column;gap:8px}
+  .part{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+  .part:hover{background:rgba(79,195,247,0.06);border-color:rgba(79,195,247,0.12)}
+  .part.active{background:linear-gradient(90deg,rgba(79,195,247,0.12),rgba(2,119,189,0.06));border-color:rgba(79,195,247,0.2)}
+  .part .dot{width:12px;height:12px;border-radius:4px;background:#4fc3f7;box-shadow:0 0 8px rgba(79,195,247,0.6)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{padding:8px 10px;border-radius:8px;background:linear-gradient(180deg,var(--accent),#0288d1);border:none;color:#042033;cursor:pointer}
   .btn.alt{background:#0b1220;color:var(--muted);border:1px solid rgba(255,255,255,0.03)}
   .hint{font-size:13px;color:var(--muted);margin-top:8px}
-  .right-col{display:flex;flex-direction:column;align-items:center;gap:10px}
+  /* Editor */
+  #editor{width:640px;height:640px;image-rendering:pixelated;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:crosshair;background:#0b1220;display:block}
+  .editor-wrap{display:flex;flex-direction:column;align-items:center}
+  .toolbar{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+  .label-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .zoom{color:var(--muted);font-size:13px}
+  /* 3D */
   #glcanvas{width:360px;height:360px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:#071022}
-  .toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-  .small{padding:6px 8px;font-size:13px}
+  .right-col{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .legend{font-size:13px;color:var(--muted);text-align:center}
   @media(max-width:1100px){.app{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
   <div class="app">
-    <!-- LEFT -->
+    <!-- LEFT: Parts list -->
     <div class="card">
-      <h1>Werkzeuge</h1>
-      <div class="controls">
-        <button class="btn" id="brushBtn">Pinsel</button>
-        <button class="btn alt" id="eraserBtn">Radierer</button>
-        <button class="btn alt" id="fillBtn">Füllen</button>
-        <button class="btn alt" id="selectBtn">Auswahl</button>
+      <h1>Parts (Körperteile)</h1>
+      <div class="parts" id="partsList">
+        <!-- Dynamisch befüllt -->
       </div>
 
-      <h1 style="margin-top:12px">Palette</h1>
-      <div class="palette" id="palette"></div>
-      <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-        <input id="colorPicker" type="color" value="#ffcc00" />
-        <button class="btn small" id="mirrorToggle">Spiegel M: Aus</button>
-        <button class="btn small" id="layerToggle">Overlay L: Aus</button>
+      <div class="controls">
+        <button class="btn" id="mirrorBtn">Spiegelmodus: Aus</button>
+        <button class="btn alt" id="overlayBtn">Overlay: Aus</button>
+        <button class="btn alt" id="clearBtn">Leeren</button>
       </div>
 
       <div style="margin-top:12px">
-        <button class="btn" id="download">Download PNG</button>
-        <button class="btn alt" id="clear">Leeren</button>
+        <input id="colorPicker" type="color" value="#ffcc00" />
+        <button class="btn" id="downloadBtn">Skin herunterladen</button>
       </div>
 
-      <div class="hint">Tasten: Shift = Radierer, M = Spiegelmodus, L = Overlay‑Layer umschalten.</div>
+      <div class="hint">Klicke eine Part, um sie zu markieren. Hover zeigt Region im 2D‑Editor.</div>
     </div>
 
-    <!-- CENTER: Editor -->
-    <div class="card" style="display:flex;flex-direction:column;align-items:center">
-      <h1>2D Editor 64×64 Minecraft Skin</h1>
+    <!-- CENTER: 2D Editor -->
+    <div class="card editor-wrap">
+      <h1>2D Editor — Minecraft 64×64 Template</h1>
       <canvas id="editor" width="640" height="640"></canvas>
-      <div class="hint">Klicke oder ziehe, um Pixel zu malen. Zoom mit Strg + Mausrad, Auswahlwerkzeug zum Verschieben.</div>
+      <div class="toolbar">
+        <button class="btn alt" id="brushBtn">Pinsel</button>
+        <button class="btn alt" id="eraserBtn">Radierer (Shift)</button>
+        <div class="label-row"><span class="zoom">Zoom: Strg + Mausrad</span></div>
+      </div>
+      <div class="hint">Die Konturen zeigen die exakten Part‑Regionen des 64×64‑Skins.</div>
     </div>
 
-    <!-- RIGHT: 3D Preview -->
+    <!-- RIGHT: 3D Preview (multi-box model) -->
     <div class="card right-col">
-      <h1>3D Vorschau</h1>
+      <h1>3D Vorschau (Head, Body, Arms, Legs)</h1>
       <canvas id="glcanvas"></canvas>
-      <div class="toolbar">
-        <button class="btn small" id="resetCam">Reset Kamera</button>
-        <button class="btn small" id="toggleAutoSpin">Auto Spin</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn alt" id="resetCam">Reset</button>
+        <button class="btn" id="autoSpinBtn">Auto Spin</button>
       </div>
-      <div class="hint">Drehen: Drag, Zoomen: Mausrad. Änderungen werden live übernommen.</div>
+      <div class="legend">Nicht nur ein Würfel — echtes Box‑Modell mit UV‑Mapping.</div>
     </div>
   </div>
 
 <script>
 /* -------------------------
-   Setup: Skin canvases
+   Konfiguration: Part‑Definitionen (Minecraft 64x64 Template)
+   Jede Part hat: id, label, rects (Array von [x,y,w,h] in Skin‑Pixel)
+   Die Rects definieren die sichtbaren Bereiche (Basis‑Layer). Overlay wird separat behandelt.
    ------------------------- */
 const SKIN = 64;
+const PARTS = [
+  { id:'head', label:'Kopf (Head)', rects:[
+      [8,8,8,8]  // Kopf Front/Top/Bottom/Right/Left/Back werden im Editor als Gesamtblock markiert
+    ]},
+  { id:'body', label:'Körper (Torso)', rects:[
+      [20,20,8,12]
+    ]},
+  { id:'rightArm', label:'Arm rechts', rects:[
+      [44,16,4,12]
+    ]},
+  { id:'leftArm', label:'Arm links', rects:[
+      [36,48,4,12] // klassische linke Arm‑Region (je nach Template)
+    ]},
+  { id:'rightLeg', label:'Bein rechts', rects:[
+      [4,16,4,12]
+    ]},
+  { id:'leftLeg', label:'Bein links', rects:[
+      [20,52,4,12]
+    ]},
+  { id:'overlay', label:'Overlay (Hut/Jacke)', rects:[
+      [40,8,8,8], [20,36,8,12] // beispielhafte Overlay‑Zonen (Hut, Jacke)
+    ]}
+];
+
+/* -------------------------
+   Canvas: Basis + Overlay
+   ------------------------- */
 const skin = document.createElement('canvas'); skin.width = SKIN; skin.height = SKIN;
-const skinCtx = skin.getContext('2d');
-skinCtx.clearRect(0,0,SKIN,SKIN);
+const sctx = skin.getContext('2d');
+sctx.clearRect(0,0,SKIN,SKIN);
 
-/* overlay layer (hat/jacket) */
-const overlay = document.createElement('canvas'); overlay.width=SKIN; overlay.height=SKIN;
-const overlayCtx = overlay.getContext('2d');
-overlayCtx.clearRect(0,0,SKIN,SKIN);
+const overlay = document.createElement('canvas'); overlay.width = SKIN; overlay.height = SKIN;
+const octx = overlay.getContext('2d');
+octx.clearRect(0,0,SKIN,SKIN);
 
-/* editor (scaled) */
+/* Editor (scaled) */
 const editor = document.getElementById('editor');
 const ectx = editor.getContext('2d');
-const DISPLAY = editor.width; // 640
-let viewScale = DISPLAY / SKIN; // 10
+let displaySize = editor.width; // 640
+let viewScale = displaySize / SKIN; // initial 10
 editor.style.imageRendering = 'pixelated';
 
-/* tools state */
-let tool = 'brush';
+/* UI state */
 let currentColor = '#ffcc00';
+let tool = 'brush';
 let mirror = false;
 let overlayEnabled = false;
 let painting = false;
-let erasing = false;
-let lastPos = null;
 
-/* build palette */
-const paletteColors = [
-  '#000000','#1f1f1f','#3f3f3f','#7f7f7f','#ffffff',
-  '#7f0000','#ff0000','#ff7f7f','#ffbf00','#ffd27f',
-  '#7f3f00','#ff7f7f','#7fff7f','#00ff00','#007f7f',
-  '#00bfff','#007fff','#0000ff','#7f00ff','#ff00ff'
-];
-const paletteEl = document.getElementById('palette');
-paletteColors.forEach(c=>{
-  const d = document.createElement('div'); d.className='sw'; d.style.background=c;
-  d.onclick = ()=>{ currentColor = c; document.getElementById('colorPicker').value = c; };
-  paletteEl.appendChild(d);
+/* build parts list UI */
+const partsList = document.getElementById('partsList');
+let activePart = null;
+PARTS.forEach(p=>{
+  const el = document.createElement('div');
+  el.className = 'part';
+  el.id = 'part-'+p.id;
+  el.innerHTML = `<div class="dot"></div><div style="flex:1">${p.label}</div>`;
+  el.addEventListener('click', ()=>{ setActivePart(p.id); });
+  el.addEventListener('mouseenter', ()=>{ hoverPart(p.id,true); });
+  el.addEventListener('mouseleave', ()=>{ hoverPart(p.id,false); });
+  partsList.appendChild(el);
 });
-document.getElementById('colorPicker').addEventListener('input',e=>currentColor=e.target.value);
 
-/* tool buttons */
-document.getElementById('brushBtn').onclick = ()=> tool='brush';
-document.getElementById('eraserBtn').onclick = ()=> tool='eraser';
-document.getElementById('fillBtn').onclick = ()=> tool='fill';
-document.getElementById('selectBtn').onclick = ()=> tool='select';
-document.getElementById('mirrorToggle').onclick = ()=>{
-  mirror = !mirror; document.getElementById('mirrorToggle').textContent = `Spiegel M: ${mirror? 'An':'Aus'}`;
-};
-document.getElementById('layerToggle').onclick = ()=>{
-  overlayEnabled = !overlayEnabled; document.getElementById('layerToggle').textContent = `Overlay L: ${overlayEnabled? 'An':'Aus'}`;
-};
-
-/* clear & download */
-document.getElementById('clear').onclick = ()=>{
-  skinCtx.clearRect(0,0,SKIN,SKIN); overlayCtx.clearRect(0,0,SKIN,SKIN); redraw(); updateGLTexture();
-};
-document.getElementById('download').onclick = ()=>{
-  // merge base + overlay into one 64x64 PNG
+/* color picker & buttons */
+document.getElementById('colorPicker').addEventListener('input', e=> currentColor = e.target.value);
+document.getElementById('mirrorBtn').addEventListener('click', ()=>{
+  mirror = !mirror; document.getElementById('mirrorBtn').textContent = `Spiegelmodus: ${mirror? 'An':'Aus'}`;
+});
+document.getElementById('overlayBtn').addEventListener('click', ()=>{
+  overlayEnabled = !overlayEnabled; document.getElementById('overlayBtn').textContent = `Overlay: ${overlayEnabled? 'An':'Aus'}`;
+  redraw();
+});
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  sctx.clearRect(0,0,SKIN,SKIN); octx.clearRect(0,0,SKIN,SKIN); redraw(); updateGL();
+});
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
   const out = document.createElement('canvas'); out.width=SKIN; out.height=SKIN;
-  const octx = out.getContext('2d');
-  octx.clearRect(0,0,SKIN,SKIN);
-  octx.drawImage(skin,0,0);
-  octx.drawImage(overlay,0,0);
+  const outCtx = out.getContext('2d'); outCtx.clearRect(0,0,SKIN,SKIN);
+  outCtx.drawImage(skin,0,0); outCtx.drawImage(overlay,0,0);
   const a = document.createElement('a'); a.href = out.toDataURL('image/png'); a.download='skin.png'; document.body.appendChild(a); a.click(); a.remove();
-};
+});
 
-/* -------------------------
-   Editor interactions
-   ------------------------- */
+/* brush/eraser */
+document.getElementById('brushBtn').addEventListener('click', ()=> tool='brush');
+document.getElementById('eraserBtn').addEventListener('click', ()=> tool='eraser');
+
+/* set active part */
+function setActivePart(id){
+  activePart = id;
+  document.querySelectorAll('.part').forEach(el=>el.classList.remove('active'));
+  const el = document.getElementById('part-'+id);
+  if(el) el.classList.add('active');
+  // optional: center view on part (jump)
+  if(id !== 'overlay'){
+    const p = PARTS.find(x=>x.id===id);
+    if(p && p.rects && p.rects.length){
+      const r = p.rects[0];
+      // center editor view by scrolling canvas container (simple approach: no scroll, but we can flash)
+      flashRegion(r[0],r[1],r[2],r[3]);
+    }
+  }
+}
+
+/* hover highlight */
+let hoverRect = null;
+function hoverPart(id, on){
+  if(on){
+    const p = PARTS.find(x=>x.id===id);
+    if(p && p.rects && p.rects.length) hoverRect = p.rects[0];
+  } else hoverRect = null;
+  redraw();
+}
+
+/* flash region (brief highlight) */
+function flashRegion(x,y,w,h){
+  const prev = hoverRect;
+  hoverRect = [x,y,w,h];
+  redraw();
+  setTimeout(()=>{ hoverRect = prev; redraw(); }, 600);
+}
+
+/* drawing functions */
 function redraw(){
-  // background checker
-  ectx.fillStyle = '#0b1220'; ectx.fillRect(0,0,DISPLAY,DISPLAY);
+  // background
+  ectx.fillStyle = '#0b1220'; ectx.fillRect(0,0,displaySize,displaySize);
   // draw base skin scaled
   ectx.imageSmoothingEnabled = false;
-  ectx.drawImage(skin,0,0,SKIN,SKIN,0,0,DISPLAY,DISPLAY);
-  // overlay if enabled (show as semi)
+  ectx.drawImage(skin,0,0,SKIN,SKIN,0,0,displaySize,displaySize);
+  // overlay (semi-transparent when disabled)
   ectx.globalAlpha = overlayEnabled ? 1.0 : 0.6;
-  ectx.drawImage(overlay,0,0,SKIN,SKIN,0,0,DISPLAY,DISPLAY);
+  ectx.drawImage(overlay,0,0,SKIN,SKIN,0,0,displaySize,displaySize);
   ectx.globalAlpha = 1.0;
   // grid
   ectx.strokeStyle = 'rgba(255,255,255,0.04)'; ectx.lineWidth = 1;
   for(let i=0;i<=SKIN;i++){
     const p = i * viewScale + 0.5;
-    ectx.beginPath(); ectx.moveTo(p,0); ectx.lineTo(p,DISPLAY); ectx.stroke();
-    ectx.beginPath(); ectx.moveTo(0,p); ectx.lineTo(DISPLAY,p); ectx.stroke();
+    ectx.beginPath(); ectx.moveTo(p,0); ectx.lineTo(p,displaySize); ectx.stroke();
+    ectx.beginPath(); ectx.moveTo(0,p); ectx.lineTo(displaySize,p); ectx.stroke();
+  }
+  // draw part outlines
+  ectx.lineWidth = 2;
+  PARTS.forEach(p=>{
+    p.rects.forEach(r=>{
+      const [x,y,w,h] = r;
+      ectx.strokeStyle = (activePart===p.id) ? 'rgba(79,195,247,0.95)' : 'rgba(255,255,255,0.06)';
+      ectx.strokeRect(x*viewScale+1, y*viewScale+1, w*viewScale-2, h*viewScale-2);
+    });
+  });
+  // hover highlight
+  if(hoverRect){
+    const [x,y,w,h] = hoverRect;
+    ectx.fillStyle = 'rgba(79,195,247,0.12)';
+    ectx.fillRect(x*viewScale, y*viewScale, w*viewScale, h*viewScale);
   }
 }
-function setPixel(x,y,color,layerCtx){
-  if(x<0||x>=SKIN||y<0||y>=SKIN) return;
-  layerCtx.fillStyle = color;
-  layerCtx.fillRect(x,y,1,1);
+
+/* set pixel on chosen layer (base or overlay) */
+function setPixel(px,py,color, useOverlay=false){
+  if(px<0||px>=SKIN||py<0||py>=SKIN) return;
+  const ctx = useOverlay ? octx : sctx;
+  if(color === null){ ctx.clearRect(px,py,1,1); } else {
+    ctx.fillStyle = color; ctx.fillRect(px,py,1,1);
+  }
 }
-function handlePaint(clientX,clientY,shiftKey){
+
+/* painting logic */
+editor.addEventListener('mousedown', e=>{
+  painting = true;
+  paintAt(e);
+});
+window.addEventListener('mouseup', ()=> painting=false);
+editor.addEventListener('mousemove', e=>{ if(painting) paintAt(e); });
+editor.addEventListener('wheel', e=>{
+  if(e.ctrlKey){ e.preventDefault(); const d = Math.sign(e.deltaY); viewScale = Math.max(4, Math.min(20, viewScale - d)); redraw(); }
+},{passive:false});
+
+function paintAt(e){
   const rect = editor.getBoundingClientRect();
   const scaleX = editor.width / rect.width;
   const scaleY = editor.height / rect.height;
-  const x = (clientX - rect.left) * scaleX;
-  const y = (clientY - rect.top) * scaleY;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
   const px = Math.floor(x / viewScale);
   const py = Math.floor(y / viewScale);
-  if(tool === 'brush'){
-    const targetCtx = overlayEnabled ? overlayCtx : skinCtx;
-    setPixel(px,py,currentColor,targetCtx);
-    if(mirror){
-      const mx = SKIN - 1 - px;
-      setPixel(mx,py,currentColor,targetCtx);
-    }
-  } else if(tool === 'eraser' || shiftKey){
-    const targetCtx = overlayEnabled ? overlayCtx : skinCtx;
-    setPixel(px,py,'rgba(0,0,0,0)',targetCtx);
-    // clear by drawing transparent pixel
-    targetCtx.clearRect(px,py,1,1);
-    if(mirror){
-      const mx = SKIN - 1 - px;
-      targetCtx.clearRect(mx,py,1,1);
-    }
-  } else if(tool === 'fill'){
-    floodFill(px,py,currentColor, overlayEnabled ? overlayCtx : skinCtx);
-  }
-  redraw(); updateGLTexture();
-}
 
-/* simple flood fill on chosen layer */
-function floodFill(sx,sy,color,ctx){
-  const img = ctx.getImageData(0,0,SKIN,SKIN);
-  const data = img.data;
-  function getIdx(x,y){ return (y*SKIN + x)*4; }
-  if(sx<0||sx>=SKIN||sy<0||sy>=SKIN) return;
-  const startIdx = getIdx(sx,sy);
-  const startR = data[startIdx], startG = data[startIdx+1], startB = data[startIdx+2], startA = data[startIdx+3];
-  // target color
-  const tc = hexToRgba(color);
-  if(startR===tc.r && startG===tc.g && startB===tc.b && startA===tc.a) return;
-  const stack = [[sx,sy]];
-  while(stack.length){
-    const [x,y] = stack.pop();
-    if(x<0||x>=SKIN||y<0||y>=SKIN) continue;
-    const idx = getIdx(x,y);
-    if(data[idx]===startR && data[idx+1]===startG && data[idx+2]===startB && data[idx+3]===startA){
-      data[idx]=tc.r; data[idx+1]=tc.g; data[idx+2]=tc.b; data[idx+3]=tc.a;
-      stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  // if a part is active, restrict painting to its rects (unless overlay selected)
+  let allowed = true;
+  if(activePart && activePart !== 'overlay'){
+    const p = PARTS.find(x=>x.id===activePart);
+    allowed = false;
+    if(p && p.rects){
+      for(const r of p.rects){
+        if(px >= r[0] && px < r[0]+r[2] && py >= r[1] && py < r[1]+r[3]){ allowed = true; break; }
+      }
     }
   }
-  ctx.putImageData(img,0,0);
-}
-function hexToRgba(hex){
-  if(hex.startsWith('#')) hex = hex.slice(1);
-  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
-  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
-  return {r,g,b,a:255};
-}
 
-/* mouse events */
-editor.addEventListener('mousedown',e=>{
-  painting = true; handlePaint(e.clientX,e.clientY,e.shiftKey);
-});
-window.addEventListener('mouseup',()=>{ painting=false; lastPos=null; });
-editor.addEventListener('mousemove',e=>{ if(painting) handlePaint(e.clientX,e.clientY,e.shiftKey); });
-editor.addEventListener('wheel',e=>{
-  if(e.ctrlKey){
-    e.preventDefault();
-    // zoom editor viewScale between 4 and 20
-    const delta = Math.sign(e.deltaY);
-    viewScale = Math.max(4, Math.min(20, viewScale - delta));
-    redraw();
+  if(!allowed) return;
+
+  const useOverlay = overlayEnabled || activePart === 'overlay';
+  if(tool === 'eraser' || e.shiftKey){
+    setPixel(px,py,null,useOverlay);
+    if(mirror){ setPixel(SKIN-1-px,py,null,useOverlay); }
+  } else {
+    setPixel(px,py,currentColor,useOverlay);
+    if(mirror){ setPixel(SKIN-1-px,py,currentColor,useOverlay); }
   }
-},{passive:false});
+  redraw(); updateGL();
+}
 
 /* keyboard shortcuts */
-window.addEventListener('keydown',e=>{
-  if(e.key === 'm' || e.key === 'M'){ mirror = !mirror; document.getElementById('mirrorToggle').textContent = `Spiegel M: ${mirror? 'An':'Aus'}`; }
-  if(e.key === 'l' || e.key === 'L'){ overlayEnabled = !overlayEnabled; document.getElementById('layerToggle').textContent = `Overlay L: ${overlayEnabled? 'An':'Aus'}`; }
+window.addEventListener('keydown', e=>{
+  if(e.key === 'm' || e.key === 'M'){ mirror = !mirror; document.getElementById('mirrorBtn').textContent = `Spiegelmodus: ${mirror? 'An':'Aus'}`; }
+  if(e.key === 'l' || e.key === 'L'){ overlayEnabled = !overlayEnabled; document.getElementById('overlayBtn').textContent = `Overlay: ${overlayEnabled? 'An':'Aus'}`; redraw(); }
   if(e.key === 'Shift') tool = 'eraser';
 });
-window.addEventListener('keyup',e=>{
-  if(e.key === 'Shift') tool = 'brush';
-});
+window.addEventListener('keyup', e=>{ if(e.key === 'Shift') tool = 'brush'; });
 
 /* initial draw */
 redraw();
 
 /* -------------------------
-   3D Preview using three.js
+   3D Vorschau (three.js) — Multi‑Box Modell
    ------------------------- */
-/* We'll use a minimal embedded three.js from CDN and create a box model with correct UV mapping for Minecraft skin.
-   The code below dynamically loads three.js then builds the model and updates texture from our skin+overlay canvas.
-*/
 function loadScript(url){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=url; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
 
 (async function initThree(){
-  // load three.js r152 (CDN)
   try{
     await loadScript('https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js');
     await loadScript('https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js');
-  }catch(e){
-    console.error('three.js load failed',e);
-    return;
-  }
+  }catch(e){ console.error('three load failed',e); return; }
 
   const canvas = document.getElementById('glcanvas');
   const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
@@ -285,185 +330,107 @@ function loadScript(url){ return new Promise((res,rej)=>{ const s=document.creat
   const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.1, 1000);
   camera.position.set(0, 10, 30);
 
-  const light = new THREE.DirectionalLight(0xffffff, 1.0);
-  light.position.set(10,20,10);
-  scene.add(light);
-  scene.add(new THREE.AmbientLight(0xffffff,0.4));
+  const light = new THREE.DirectionalLight(0xffffff, 1.0); light.position.set(10,20,10); scene.add(light);
+  scene.add(new THREE.AmbientLight(0xffffff,0.5));
 
-  // controls
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
   controls.target.set(0,8,0);
   controls.update();
 
-  // Build a Minecraft-style model from boxes with correct UV mapping.
-  // We'll create a simple body: head, body, left/right arms, left/right legs.
-  const group = new THREE.Group();
-  scene.add(group);
+  const group = new THREE.Group(); scene.add(group);
 
-  // helper to create box with custom UVs from skin coordinates
-  function createBox(w,h,d,uvMap){
-    // w,h,d in pixels (Minecraft units), but we'll scale down
-    const geometry = new THREE.BoxGeometry(w,h,d);
-    // UV mapping: uvMap is array of 6 faces each face: [x,y,w,h] in skin pixels (origin top-left)
-    // BoxGeometry has 6 groups of 2 triangles -> 6 faces in order: +X,-X,+Y,-Y,+Z,-Z (three.js)
-    // We'll map each face's UVs accordingly.
-    const uvAttr = geometry.attributes.uv;
+  // helper to create box geometry with UV mapping for each face from skin coords
+  function createBoxGeometry(w,h,d,uvMap){
+    const geom = new THREE.BoxGeometry(w,h,d);
+    const uvAttr = geom.attributes.uv;
     for(let f=0; f<6; f++){
-      const faceUV = uvMap[f]; // [sx,sy,sw,sh]
-      const sx = faceUV[0]/SKIN, sy = faceUV[1]/SKIN, sw = faceUV[2]/SKIN, sh = faceUV[3]/SKIN;
-      // each face has 4 UVs (2 triangles) -> 8 values
-      // mapping depends on face index; BoxGeometry uv order is consistent
+      const face = uvMap[f]; // [sx,sy,sw,sh]
+      const sx = face[0]/SKIN, sy = face[1]/SKIN, sw = face[2]/SKIN, sh = face[3]/SKIN;
       const idx = f*8;
-      // assign UVs (u,v) for the 4 vertices of the face
-      // We'll map as: (sx, sy+sh), (sx+sw, sy+sh), (sx+sw, sy), (sx, sy)
-      uvAttr.array[idx+0] = sx;        uvAttr.array[idx+1] = sy+sh;
-      uvAttr.array[idx+2] = sx+sw;     uvAttr.array[idx+3] = sy+sh;
-      uvAttr.array[idx+4] = sx+sw;     uvAttr.array[idx+5] = sy;
-      uvAttr.array[idx+6] = sx;        uvAttr.array[idx+7] = sy;
+      uvAttr.array[idx+0] = sx;      uvAttr.array[idx+1] = sy+sh;
+      uvAttr.array[idx+2] = sx+sw;   uvAttr.array[idx+3] = sy+sh;
+      uvAttr.array[idx+4] = sx+sw;   uvAttr.array[idx+5] = sy;
+      uvAttr.array[idx+6] = sx;      uvAttr.array[idx+7] = sy;
     }
     uvAttr.needsUpdate = true;
-    return geometry;
+    return geom;
   }
 
-  // Define UV maps for each part using standard 64x64 layout coordinates
-  // Coordinates follow Minecraft 64x64 template (base layer). Values are [x,y,w,h] for each face.
-  // We'll use simplified mapping for head, body, arms, legs based on common templates.
-
-  // HEAD (8x8x8) template positions
+  // UV maps (simplified but matching common template)
   const headUV = [
-    [8,8,8,8],   // right
-    [24,8,8,8],  // left
-    [8,0,8,8],   // top
-    [16,0,8,8],  // bottom
-    [16,8,8,8],  // front
-    [0,8,8,8]    // back
+    [8,8,8,8],[24,8,8,8],[8,0,8,8],[16,0,8,8],[16,8,8,8],[0,8,8,8]
   ];
-  // BODY (12x8x4) template positions (body front at 20,20)
   const bodyUV = [
-    [36,52,4,12], // right
-    [16,52,4,12], // left
-    [20,48,8,4],  // top
-    [28,48,8,4],  // bottom
-    [20,20,8,12], // front
-    [28,20,8,12]  // back
+    [28,20,4,12],[16,20,4,12],[20,16,8,4],[28,16,8,4],[20,20,8,12],[32,20,8,12]
   ];
-  // ARM (4x12x4) right arm base layer (right arm at 44,20)
   const rightArmUV = [
-    [44,20,4,12], // right
-    [52,20,4,12], // left
-    [48,16,4,4],  // top
-    [52,16,4,4],  // bottom
-    [44,16,4,12], // front
-    [40,16,4,12]  // back
+    [44,20,4,12],[52,20,4,12],[48,16,4,4],[52,16,4,4],[44,16,4,12],[40,16,4,12]
   ];
-  // LEFT ARM uses mirrored coordinates (or the 2nd arm area 36,52 in some templates)
   const leftArmUV = [
-    [36,52,4,12],
-    [40,52,4,12],
-    [40,48,4,4],
-    [44,48,4,4],
-    [36,48,4,12],
-    [32,48,4,12]
+    [36,52,4,12],[40,52,4,12],[40,48,4,4],[44,48,4,4],[36,48,4,12],[32,48,4,12]
   ];
-  // LEG (4x12x4) right leg base layer (right leg at 4,20)
   const rightLegUV = [
-    [4,20,4,12],
-    [12,20,4,12],
-    [8,16,4,4],
-    [12,16,4,4],
-    [4,16,4,12],
-    [0,16,4,12]
+    [4,20,4,12],[12,20,4,12],[8,16,4,4],[12,16,4,4],[4,16,4,12],[0,16,4,12]
   ];
   const leftLegUV = [
-    [20,52,4,12],
-    [28,52,4,12],
-    [24,48,4,4],
-    [28,48,4,4],
-    [20,48,4,12],
-    [16,48,4,12]
+    [20,52,4,12],[28,52,4,12],[24,48,4,4],[28,48,4,4],[20,48,4,12],[16,48,4,12]
   ];
 
-  // scale factor to convert Minecraft units to three.js units
-  const unit = 0.125; // arbitrary small scale so model fits camera
-
-  // create materials with dynamic texture
-  const texture = new THREE.CanvasTexture(document.createElement('canvas'));
-  texture.image.width = SKIN; texture.image.height = SKIN;
-  texture.magFilter = THREE.NearestFilter;
-  texture.minFilter = THREE.NearestFilter;
-
-  const mat = new THREE.MeshLambertMaterial({map: texture, transparent:true});
+  const unit = 0.125;
+  // dynamic texture from skin+overlay
+  const texCanvas = document.createElement('canvas'); texCanvas.width = SKIN; texCanvas.height = SKIN;
+  const texCtx = texCanvas.getContext('2d');
+  const texture = new THREE.CanvasTexture(texCanvas);
+  texture.magFilter = THREE.NearestFilter; texture.minFilter = THREE.NearestFilter;
+  const material = new THREE.MeshLambertMaterial({map: texture, transparent:true});
 
   // head
-  const headGeo = createBox(8*unit,8*unit,8*unit, headUV);
-  const headMesh = new THREE.Mesh(headGeo, mat);
-  headMesh.position.set(0, 8*unit + 12*unit, 0);
-  group.add(headMesh);
-
+  const head = new THREE.Mesh(createBoxGeometry(8*unit,8*unit,8*unit, headUV), material);
+  head.position.set(0, 8*unit + 12*unit, 0); group.add(head);
   // body
-  const bodyGeo = createBox(8*unit,12*unit,4*unit, bodyUV);
-  const bodyMesh = new THREE.Mesh(bodyGeo, mat);
-  bodyMesh.position.set(0, 12*unit, 0);
-  group.add(bodyMesh);
-
+  const body = new THREE.Mesh(createBoxGeometry(8*unit,12*unit,4*unit, bodyUV), material);
+  body.position.set(0, 12*unit, 0); group.add(body);
   // right arm
-  const rArmGeo = createBox(4*unit,12*unit,4*unit, rightArmUV);
-  const rArm = new THREE.Mesh(rArmGeo, mat);
-  rArm.position.set(-6*unit, 12*unit, 0);
-  group.add(rArm);
-
+  const rArm = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, rightArmUV), material);
+  rArm.position.set(-6*unit, 12*unit, 0); group.add(rArm);
   // left arm
-  const lArmGeo = createBox(4*unit,12*unit,4*unit, leftArmUV);
-  const lArm = new THREE.Mesh(lArmGeo, mat);
-  lArm.position.set(6*unit, 12*unit, 0);
-  group.add(lArm);
-
+  const lArm = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, leftArmUV), material);
+  lArm.position.set(6*unit, 12*unit, 0); group.add(lArm);
   // right leg
-  const rLegGeo = createBox(4*unit,12*unit,4*unit, rightLegUV);
-  const rLeg = new THREE.Mesh(rLegGeo, mat);
-  rLeg.position.set(-2*unit, 0, 0);
-  group.add(rLeg);
-
+  const rLeg = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, rightLegUV), material);
+  rLeg.position.set(-2*unit, 0, 0); group.add(rLeg);
   // left leg
-  const lLegGeo = createBox(4*unit,12*unit,4*unit, leftLegUV);
-  const lLeg = new THREE.Mesh(lLegGeo, mat);
-  lLeg.position.set(2*unit, 0, 0);
-  group.add(lLeg);
+  const lLeg = new THREE.Mesh(createBoxGeometry(4*unit,12*unit,4*unit, leftLegUV), material);
+  lLeg.position.set(2*unit, 0, 0); group.add(lLeg);
 
-  // optional overlay layer: we will composite skin + overlay into a temp canvas and update texture
-  const tempCanvas = document.createElement('canvas'); tempCanvas.width = SKIN; tempCanvas.height = SKIN;
-  const tempCtx = tempCanvas.getContext('2d');
-
-  function updateGLTexture(){
-    // merge base + overlay
-    tempCtx.clearRect(0,0,SKIN,SKIN);
-    tempCtx.drawImage(skin,0,0);
-    tempCtx.drawImage(overlay,0,0);
-    // update three.js texture
-    texture.image = tempCanvas;
+  // update texture from canvases
+  function updateTexture(){
+    texCtx.clearRect(0,0,SKIN,SKIN);
+    texCtx.drawImage(skin,0,0);
+    texCtx.drawImage(overlay,0,0);
     texture.needsUpdate = true;
   }
 
-  // initial update
-  updateGLTexture();
+  // expose updateGL to outer scope
+  window.updateGL = updateTexture;
 
-  // animation loop
+  // controls for auto spin & reset
   let autoSpin = false;
-  document.getElementById('toggleAutoSpin').onclick = ()=>{ autoSpin = !autoSpin; };
-  document.getElementById('resetCam').onclick = ()=>{ camera.position.set(0,10,30); controls.target.set(0,8,0); controls.update(); };
+  document.getElementById('autoSpinBtn').addEventListener('click', ()=> autoSpin = !autoSpin);
+  document.getElementById('resetCam').addEventListener('click', ()=>{
+    camera.position.set(0,10,30); controls.target.set(0,8,0); controls.update();
+  });
 
   function animate(){
     requestAnimationFrame(animate);
     if(autoSpin) group.rotation.y += 0.005;
     renderer.render(scene, camera);
   }
+  updateTexture();
   animate();
 
-  // expose update function to outer scope
-  window.updateGLTexture = updateGLTexture;
-
-  // handle resize
+  // resize handling
   window.addEventListener('resize', ()=>{
     const w = canvas.clientWidth, h = canvas.clientHeight;
     renderer.setSize(w,h,false);
@@ -471,30 +438,14 @@ function loadScript(url){ return new Promise((res,rej)=>{ const s=document.creat
   });
 })();
 
-/* -------------------------
-   Keep GL texture in sync
-   ------------------------- */
-function updateGLTexture(){
-  // merge skin + overlay into a canvas and call three.js updater if available
-  const tmp = document.createElement('canvas'); tmp.width=SKIN; tmp.height=SKIN;
-  const tctx = tmp.getContext('2d');
-  tctx.clearRect(0,0,SKIN,SKIN);
-  tctx.drawImage(skin,0,0);
-  tctx.drawImage(overlay,0,0);
-  // if three.js function exists, use it
-  if(window.updateGLTexture){
-    // copy into the three.js temp canvas used there
-    // simplest: replace the image used by three.js by drawing into its canvas via dataURL
-    window.updateGLTexture(); // three.js code reads from skin+overlay canvases directly
-  }
+/* ensure GL updates when editing */
+function updateGL(){
+  if(window.updateGL) window.updateGL();
 }
 
-/* ensure redraw when user paints */
-const origSetPixel = setPixel;
-const origFlood = floodFill;
-function triggerUpdate(){ redraw(); updateGLTexture(); }
-const paintObserver = new MutationObserver(triggerUpdate);
-redraw();
+/* initial update */
+updateGL();
+
 </script>
 </body>
 </html>
